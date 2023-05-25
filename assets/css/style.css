@@ -625,6 +625,7 @@ section {
 }
 
 .icon-boxes .icon-box {
+  width: 100%;
   padding: 40px 30px;
   position: relative;
   overflow: hidden;
@@ -1033,6 +1034,12 @@ section {
   color: #e20612;
   font-size: 40px;
   line-height: 0;
+}
+
+.icon-boxes .icon-box h4 {
+  position: absolute;
+  bottom: 0;
+  right: 30px;
 }
 
 .services .icon-box h4 {
