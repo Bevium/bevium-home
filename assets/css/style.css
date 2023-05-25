@@ -197,7 +197,7 @@ h6 {
 }
 
 #header .logo img {
-  max-height: 40px;
+  max-height: 30px;
 }
 
 .header-inner-pages {
@@ -478,7 +478,8 @@ h6 {
   height: 65vh;
   overflow: hidden;
   position: relative;
-  background: url("../img/hero-bg.jpg") top center;
+  background: url("../img/bg-header.webp") top center;
+  background-color: #0000008a;
   background-size: cover;
   margin-bottom: -90px;
   z-index: 99;
@@ -630,6 +631,8 @@ section {
   box-shadow: 5px 10px 29px 0 rgba(68, 88, 144, 0.2);
   transition: all 0.3s ease-in-out;
   border-radius: 10px;
+  -webkit-background-size: cover !important; 
+  background-size: cover !important;
 }
 
 .icon-boxes .icon {
@@ -748,7 +751,7 @@ section {
 # Clients
 --------------------------------------------------------------*/
 .clients .swiper-slide img {
-  opacity: 0.5;
+  opacity: 1;
   transition: 0.3s;
 }
 

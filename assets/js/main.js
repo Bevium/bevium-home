@@ -102,6 +102,17 @@
     onscroll(document, headerScrolled)
   }
 
+  let heroSection = select('#hero')
+  if (heroSection) {
+    const heroScrolled = ()  => {
+      console.log(0.0005 * window.scrollY)
+      var scaleSize = 1 + (0.0005 * window.scrollY);
+      //heroSection.style.transform =  `scale(${scaleSize})`;
+    }
+    window.addEventListener('load', heroScrolled)
+    onscroll(document, heroScrolled)
+  }
+
   /**
    * Back to top button
    */
