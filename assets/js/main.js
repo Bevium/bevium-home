@@ -105,8 +105,7 @@
   let heroSection = select('#hero')
   if (heroSection) {
     const heroScrolled = ()  => {
-      var scaleSize = ((1 + (0.0005 * window.scrollY)) > 1.2) ? 1.2 : 1 + (0.0005 * window.scrollY);
-      console.log(scaleSize)
+      var scaleSize = ((1 + (0.0005 * window.scrollY)) > 1.2) ? 1.2 : 1 + (0.0005 * window.scrollY)
 
       heroSection.style.transform =  `scale(${scaleSize})`;
     }
