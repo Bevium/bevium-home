@@ -58,7 +58,7 @@ h6 {
 }
 
 .back-to-top:hover {
-  background: #2194f7;
+  background: rgb(240, 40, 50);
   color: #fff;
 }
 
@@ -86,8 +86,8 @@ h6 {
   position: fixed;
   top: calc(50% - 30px);
   left: calc(50% - 30px);
-  border: 6px solid #0880e8;
-  border-top-color: #bfe0fd;
+  border: 6px solid #e20612;
+  border-top-color: #ffb7ba;
   border-radius: 50%;
   width: 60px;
   height: 60px;
@@ -471,15 +471,21 @@ h6 {
   display: block;
 }
 
+#video {
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+}
+
 /*--------------------------------------------------------------
 # Hero Section
 --------------------------------------------------------------*/
 #hero {
-  justify-content: center;
+  justify-content: flex-start;
   padding: 0;
-  width: 100%;
+  width: 100vw;
   height: 100vh;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
   /*background: url("../img/bg-header.webp") top center; */
   background-color: #000000;

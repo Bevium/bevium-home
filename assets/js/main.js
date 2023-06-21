@@ -102,12 +102,12 @@
     onscroll(document, headerScrolled)
   }
 
-  let heroSection = select('#hero')
+  let heroSection = select('#video')
   if (heroSection) {
     const heroScrolled = ()  => {
       var scaleSize = ((1 + (0.0005 * window.scrollY)) > 1.2) ? 1.2 : 1 + (0.0005 * window.scrollY);
 
-      heroSection.style.transform =  `scale(${scaleSize})`;
+      //heroSection.style.transform =  `scale(${scaleSize})`;
     }
     window.addEventListener('load', heroScrolled)
     onscroll(document, heroScrolled)
