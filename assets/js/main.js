@@ -306,7 +306,6 @@
   });
 
   window.onload = function() {
-    // Insert blog content after the whole page has loaded
     document.getElementById('blog-content').innerHTML = loadBlogContent();
   
     if (window.twttr) {

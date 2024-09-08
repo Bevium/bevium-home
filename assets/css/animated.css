@@ -1,0 +1,71 @@
+@import url(https://fonts.googleapis.com/css?family=Poiret+One);
+
+#topb{
+  animation:falldown7 3s;
+  animation-delay:0s;
+}
+
+#onion{
+  animation:falldown6 3.5s;
+  animation-delay:0s;
+}
+
+#tomato{
+  animation:falldown5 4s;
+  animation-delay:0s;
+}
+
+#letus{
+  animation:falldown4 3s;
+  animation-delay:0s;
+}
+
+#cheese{
+  animation:falldown3 3s;
+  animation-delay:0s;
+}
+
+#meat{
+  animation:falldown2 3s;
+  animation-delay:0s;
+}
+
+#bottomb{
+  animation:falldown1 3s ;
+  animation-delay:0s; 
+}
+
+@keyframes falldown1{
+  0%{transform:translateY(-800px);}
+  70%{transform:translateY(0px);}
+  }
+
+@keyframes falldown2{
+  0%{transform:translateY(-1000px);}
+  70%{transform:translateY(0px);}
+  }
+
+@keyframes falldown3{
+  0%{transform:translateY(-1200px);}
+  70%{transform:translateY(0px);}
+  }
+
+@keyframes falldown4{
+  0%{transform:translateY(-1400px);}
+  70%{transform:translateY(0px);}
+  }
+
+@keyframes falldown5{
+  0%{transform:translateY(1600px);}
+  70%{transform:translateY(0px);}
+  }
+
+@keyframes falldown6{
+  0%{transform:translateY(1800px);}
+  70%{transform:translateY(0px);}
+  }
+
+@keyframes falldown7{
+  0%{transform:translateY(2000px);}
+  70%{transform:translateY(0px);}
+  }
