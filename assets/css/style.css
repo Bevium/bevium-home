@@ -68,10 +68,9 @@ h6 {
 }
 
 /*--------------------------------------------------------------
-# Preloader
+# Section-specific Preloader
 --------------------------------------------------------------*/
-#preloader {
-  position: fixed;
+.preloader {
   top: 0;
   left: 0;
   right: 0;
@@ -81,11 +80,12 @@ h6 {
   background: #fff;
 }
 
-#preloader:before {
+.preloader:before {
   content: "";
-  position: fixed;
-  top: calc(50% - 30px);
-  left: calc(50% - 30px);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   border: 6px solid #e20612;
   border-top-color: #ffb7ba;
   border-radius: 50%;
@@ -98,11 +98,12 @@ h6 {
   0% {
     transform: rotate(0deg);
   }
-
   100% {
     transform: rotate(360deg);
   }
 }
+
+
 
 /*--------------------------------------------------------------
 # Disable aos animation delay on mobile devices
