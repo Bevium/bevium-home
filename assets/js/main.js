@@ -199,7 +199,7 @@
     },
     slidesPerView: 'auto',
     pagination: {
-      el: '.swiper-pagination',
+      el: '.clients-swiper-pagination',
       type: 'bullets',
       clickable: true
     },
@@ -222,6 +222,24 @@
       }
     }
   });
+
+    /**
+   * Games Slider
+   */
+    new Swiper('.games-slider', {
+      speed: 200,
+      loop: true,
+      autoplay: {
+        delay: 5000,
+        disableOnInteraction: false
+      },
+      slidesPerView: 'auto',
+      pagination: {
+        el: '.games-swiper-pagination',
+        type: 'bullets',
+        clickable: true
+      }
+    });
 
   /**
    * Porfolio isotope and filter

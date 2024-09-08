@@ -487,7 +487,6 @@ h6 {
   height: 100vh;
   overflow: visible;
   position: relative;
-  /*background: url("../img/bg-header.webp") top center; */
   background-color: #000000;
   background-size: cover;
  /* margin-bottom: -90px; */
@@ -627,11 +626,10 @@ section {
 # Icon Boxes
 --------------------------------------------------------------*/
 .icon-boxes {
-  padding-top: 0;
-  padding-bottom: 0;
+  padding-top: 2%;
+  padding-bottom: 2%;
   position: relative;
   z-index: 100;
-  height: calc(35vh + 90px);
 }
 
 .icon-boxes .icon-box {
@@ -681,7 +679,7 @@ section {
 --------------------------------------------------------------*/
 .about {
   padding: 140px 0;
-  background: url("../img/about-bg.png") top center no-repeat;
+  background: url("../img/about-bg.jpg") no-repeat;
   position: relative;
 }
 
@@ -821,6 +819,71 @@ section {
 }
 
 .clients .owl-dot.active {
+  background-color: #0880e8 !important;
+}
+
+/*--------------------------------------------------------------
+# Games
+--------------------------------------------------------------*/
+.games .swiper-slide img {
+  opacity: 1;
+  transition: 0.3s;
+}
+
+.games .swiper-slide:hover img {
+  opacity: 1;
+}
+
+.games .swiper-pagination {
+  margin-top: 20px;
+  position: relative;
+}
+
+.games .swiper-pagination .swiper-pagination-bullet {
+  width: 12px;
+  height: 12px;
+  background-color: #fff;
+  opacity: 1;
+  border: 1px solid #0880e8;
+}
+
+.games .swiper-pagination .swiper-pagination-bullet-active {
+  background-color: #0880e8;
+}
+
+.games .owl-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.games .owl-item img {
+  width: 60%;
+  opacity: 0.5;
+  transition: 0.3s;
+}
+
+.games .owl-item img:hover {
+  opacity: 1;
+}
+
+.games .owl-nav,
+.games .owl-dots {
+  margin-top: 5px;
+  text-align: center;
+}
+
+.games .owl-dot {
+  display: inline-block;
+  margin: 0 5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #ddd !important;
+}
+
+.games .owl-dot.active {
   background-color: #0880e8 !important;
 }
 
