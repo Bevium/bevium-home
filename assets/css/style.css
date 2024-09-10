@@ -872,6 +872,7 @@ section {
 
 #games img {
   height: 70px;
+  padding: 0 5px 0 5px;
 }
 
 .games .swiper-slide:hover img {
