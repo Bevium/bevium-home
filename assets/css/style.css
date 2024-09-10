@@ -119,14 +119,14 @@ h6 {
   content: "";
   position: absolute;
   top: 50%;
-  left: 50%;
+  left: calc(50% - 30px);
   transform: translate(-50%, -50%);
   border: 6px solid #e20612;
   border-top-color: #ffb7ba;
   border-radius: 50%;
   width: 60px;
   height: 60px;
-  animation: animate-preloader 1s linear infinite;
+  animation: animate-preloader 1s ease-in-out infinite;
 }
 
 @keyframes animate-preloader {
