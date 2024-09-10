@@ -841,6 +841,10 @@ section {
   transition: 0.3s;
 }
 
+#games img {
+  height: 70px;
+}
+
 .games .swiper-slide:hover img {
   opacity: 1;
 }
