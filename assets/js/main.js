@@ -306,6 +306,15 @@
   });
 
   window.onload = function() {
+    const videoElement = document.getElementById('bgVideo');
+    if (window.innerWidth >= 992) { // Desktop breakpoint 
+        videoSource.src = 'assets/video/BeviumBackgroundVideoHQ.mp4'; 
+    }else{
+      videoSource.src = 'assets/video/BeviumBackgroundVideo.mp4';
+    }
+    videoElement.load();
+    videoElement.play();
+
     document.getElementById('blog-content').innerHTML = loadBlogContent();
   
     if (window.twttr) {
