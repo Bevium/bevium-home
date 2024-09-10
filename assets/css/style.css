@@ -34,6 +34,12 @@ h6 {
   font-family: "Raleway", sans-serif;
 }
 
+.icon-box-container{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /*--------------------------------------------------------------
 # Back to top button
 --------------------------------------------------------------*/
@@ -692,6 +698,10 @@ section {
   top: 0;
   left: 0;
   right: 0;
+}
+
+.row.content{
+  padding-bottom: 10px;
 }
 
 .about .container {
