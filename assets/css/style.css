@@ -41,6 +41,35 @@ h6 {
 }
 
 /*--------------------------------------------------------------
+# Bevium Logo
+--------------------------------------------------------------*/
+
+.logo-responsive {
+  max-width: 100%;
+  height: auto;
+  width: 800px; /* Default width for large screens */
+}
+
+/* Smaller screens adjustments */
+@media (max-width: 992px) { /* For medium screens */
+  .logo-responsive {
+    width: 600px;
+  }
+}
+
+@media (max-width: 768px) { /* For small screens */
+  .logo-responsive {
+    width: 500px;
+  }
+}
+
+@media (max-width: 576px) { /* For extra small screens */
+  .logo-responsive {
+    width: 450px;
+  }
+}
+
+/*--------------------------------------------------------------
 # Back to top button
 --------------------------------------------------------------*/
 .back-to-top {
