@@ -347,7 +347,9 @@
 
     const videoElement = document.getElementById('bgVideo');
 
-
+    videoElement.muted = true;
+    videoElement.playsInline = true; 
+    
     videoElement.onended = function() {
         currentVideoIndex = (currentVideoIndex + 1) % mobileVideoList.length; 
         videoSource.src = mobileVideoList[currentVideoIndex];
