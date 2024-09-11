@@ -335,14 +335,39 @@
   }
 
   function playMobileVideo() {
-    const videoElement = document.getElementById('bgVideo');
-    videoElement.muted = true;
-    videoElement.playsInline = true; 
-    videoElement.autoplay = false;
-    videoElement.src = 'assets/video/beviummobile.mp4';
-    videoElement.loop = true;
-    videoElement.load();
-    videoElement.play();
+      const mobileVideoList = [
+          'assets/video/output_time_0.mp4',
+          'assets/video/output_time_1.mp4',
+          'assets/video/output_time_2.mp4',
+          'assets/video/output_time_3.mp4',
+          'assets/video/output_time_4.mp4',
+          'assets/video/output_time_5.mp4',
+          'assets/video/output_time_6.mp4',
+      ];
+
+      const videoElement = document.getElementById('bgVideo');
+
+      videoElement.muted = true;
+      videoElement.playsInline = true;
+
+      videoElement.onended = function() {
+          currentVideoIndex = (currentVideoIndex + 1) % mobileVideoList.length;
+          videoElement.src = mobileVideoList[currentVideoIndex];
+          videoElement.load();
+          videoElement.play().catch(function(error) {
+              console.log('Autoplay was prevented:', error);
+          });
+      };
+
+      let currentVideoIndex = 0;
+      videoElement.src = mobileVideoList[currentVideoIndex];
+      videoElement.muted = true;
+      videoElement.playsInline = true;
+      videoElement.autoplay = false;
+      videoElement.load();
+      videoElement.play().catch(function(error) {
+          console.log('Autoplay was prevented:', error);
+      });
   }
 
   function playDesktopVideo() {
@@ -355,22 +380,22 @@
 
   function loadBlogContent() {
       return `
-    <div class="container" data-aos="zoom-in">
-      <div class="row">
-        <div class="col-lg-6 mt-4" data-aos="fade-up" data-aos-delay="50">
-          <div class="row" style="padding-bottom: 10px;">
-            <a class="twitter-timeline" data-height="400" data-theme="light" href="https://twitter.com/bevium?ref_src=twsrc%5Etfw">Tweets by bevium</a>
-          </div>
-          <div class="row">
-            <iframe width="100" height="300" src="https://rss.app/embed/v1/feed/tpT2kdzMiAC6oqg4" frameborder="0"></iframe>
-          </div>
+  <div class="container" data-aos="zoom-in">
+    <div class="row">
+      <div class="col-lg-6 mt-4" data-aos="fade-up" data-aos-delay="50">
+        <div class="row" style="padding-bottom: 10px;">
+          <a class="twitter-timeline" data-height="400" data-theme="light" href="https://twitter.com/bevium?ref_src=twsrc%5Etfw">Tweets by bevium</a>
         </div>
-        <div class="col-lg-6 mt-4" data-aos="fade-up" data-aos-delay="200">
-          <iframe width="100%" height="700" src="https://rss.app/embed/v1/feed/tLnlRnuAXgAk5jpW" frameborder="0"></iframe>
+        <div class="row">
+          <iframe width="100" height="300" src="https://rss.app/embed/v1/feed/tpT2kdzMiAC6oqg4" frameborder="0"></iframe>
         </div>
       </div>
+      <div class="col-lg-6 mt-4" data-aos="fade-up" data-aos-delay="200">
+        <iframe width="100%" height="700" src="https://rss.app/embed/v1/feed/tLnlRnuAXgAk5jpW" frameborder="0"></iframe>
+      </div>
     </div>
-    `;
+  </div>
+  `;
   }
 
 })()
