@@ -313,6 +313,7 @@
       }
 
       document.getElementById('blog-content').innerHTML = loadBlogContent();
+      loadFeeds();
   };
 
   function loadFeeds() {
