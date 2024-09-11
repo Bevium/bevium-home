@@ -335,36 +335,14 @@
   }
 
   function playMobileVideo() {
-      const mobileVideoList = [
-          'assets/video/output_time_0.mp4',
-          'assets/video/output_time_1.mp4',
-          'assets/video/output_time_2.mp4',
-          'assets/video/output_time_3.mp4',
-          'assets/video/output_time_4.mp4',
-          'assets/video/output_time_5.mp4',
-          'assets/video/output_time_6.mp4',
-      ];
-
     const videoElement = document.getElementById('bgVideo');
-
     videoElement.muted = true;
     videoElement.playsInline = true; 
-
-    videoElement.onended = function() {
-        currentVideoIndex = (currentVideoIndex + 1) % mobileVideoList.length; 
-        videoElement.src = mobileVideoList[currentVideoIndex];
-        videoElement.load();
-        videoElement.play().catch(function(error) {
-            console.log('Autoplay was prevented:', error);
-        });
-    };
-
-    let currentVideoIndex = 0;
-    videoElement.src = mobileVideoList[currentVideoIndex];
+    videoElement.autoplay = false;
+    videoElement.src = 'assets/video/beviummobile.mp4';
+    videoElement.loop = true;
     videoElement.load();
-    videoElement.play().catch(function(error) {
-      console.log('Autoplay was prevented:', error);
-    });
+    videoElement.play();
   }
 
   function playDesktopVideo() {
