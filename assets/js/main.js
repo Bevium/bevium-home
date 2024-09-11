@@ -349,10 +349,10 @@
 
     videoElement.muted = true;
     videoElement.playsInline = true; 
-    
+
     videoElement.onended = function() {
         currentVideoIndex = (currentVideoIndex + 1) % mobileVideoList.length; 
-        videoSource.src = mobileVideoList[currentVideoIndex];
+        videoElement.src = mobileVideoList[currentVideoIndex];
         videoElement.load();
         videoElement.play().catch(function(error) {
             console.log('Autoplay was prevented:', error);
@@ -360,7 +360,7 @@
     };
 
     let currentVideoIndex = 0;
-    videoSource.src = mobileVideoList[currentVideoIndex];
+    videoElement.src = mobileVideoList[currentVideoIndex];
     videoElement.load();
     videoElement.play().catch(function(error) {
       console.log('Autoplay was prevented:', error);
@@ -369,7 +369,7 @@
 
   function playDesktopVideo() {
       const videoElement = document.getElementById('bgVideo');
-      videoSource.src = 'assets/video/BeviumBackgroundVideoHQ.mp4';
+      videoElement.src = 'assets/video/BeviumBackgroundVideoHQ.mp4';
       videoElement.loop = true;
       videoElement.load();
       videoElement.play();
