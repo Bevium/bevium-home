@@ -348,7 +348,6 @@
 
 
     videoElement.onended = function() {
-        console.log("Ended");
         currentVideoIndex = (currentVideoIndex + 1) % mobileVideoList.length; 
         videoSource.src = mobileVideoList[currentVideoIndex];
         videoElement.load();
