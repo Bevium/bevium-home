@@ -311,9 +311,6 @@
       } else {
           playMobileVideo();
       }
-
-      document.getElementById('blog-content').innerHTML = loadBlogContent();
-      loadFeeds();
   };
 
   function loadFeeds() {
@@ -378,24 +375,5 @@
       videoElement.play();
   }
 
-  function loadBlogContent() {
-      return `
-  <div class="container" data-aos="zoom-in">
-    <div class="row">
-      <div class="col-lg-6 mt-4" data-aos="fade-up" data-aos-delay="50">
-        <div class="row" style="padding-bottom: 10px;">
-          <a class="twitter-timeline" data-height="400" data-theme="light" href="https://twitter.com/bevium?ref_src=twsrc%5Etfw">Tweets by bevium</a>
-        </div>
-        <div class="row">
-          <iframe width="100" height="300" src="https://rss.app/embed/v1/feed/tpT2kdzMiAC6oqg4" frameborder="0"></iframe>
-        </div>
-      </div>
-      <div class="col-lg-6 mt-4" data-aos="fade-up" data-aos-delay="200">
-        <iframe width="100%" height="700" src="https://rss.app/embed/v1/feed/tLnlRnuAXgAk5jpW" frameborder="0"></iframe>
-      </div>
-    </div>
-  </div>
-  `;
-  }
 
 })()
