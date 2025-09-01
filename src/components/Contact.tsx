@@ -18,9 +18,10 @@ const Contact = () => {
       icon: Mail,
       title: "Email Us",
       description: "Get in touch for project inquiries",
-      value: "hello@Beviumstudios.com",
-      action: "mailto:hello@Beviumstudios.com"
+      value: "info@bevium.com",
+      action: "mailto:info@bevium.com"
     },
+    /*
     {
       icon: Phone,
       title: "Call Us",
@@ -41,7 +42,7 @@ const Contact = () => {
       description: "Our development hub",
       value: "San Francisco, CA",
       action: "#"
-    }
+    }*/
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -204,26 +205,6 @@ const Contact = () => {
               ))}
             </div>
 
-            {/* Availability */}
-            <Card className="gaming-card">
-              <CardContent className="p-6">
-                <h3 className="font-semibold mb-3">Availability</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Monday - Friday</span>
-                    <span>9:00 AM - 6:00 PM EST</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Saturday</span>
-                    <span>10:00 AM - 4:00 PM EST</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Sunday</span>
-                    <span className="text-muted-foreground">Emergency only</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>

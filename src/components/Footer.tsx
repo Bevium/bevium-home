@@ -47,9 +47,6 @@ const Footer = () => {
             </p>
             <div className="flex gap-4">
               <Button variant="ghost" size="icon" className="hover:text-primary">
-                <Github className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="icon" className="hover:text-primary">
                 <Twitter className="w-4 h-4" />
               </Button>
               <Button variant="ghost" size="icon" className="hover:text-primary">
