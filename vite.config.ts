@@ -19,6 +19,6 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: '"https://bevium.github.io/bevium-home',
+  base: '/bevium-home/',
 }));
 
