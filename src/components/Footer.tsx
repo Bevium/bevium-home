@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { 
-  Github, 
-  Twitter, 
-  Linkedin, 
+import {
+  Github,
+  Twitter,
+  Linkedin,
   Mail,
   Gamepad2,
-  ArrowUp
+  ArrowUp,
+  Instagram
 } from "lucide-react";
 
 const Footer = () => {
@@ -46,14 +47,20 @@ const Footer = () => {
               Specializing in Unreal Engine game development, custom plugins, and seamless third-party integrations. Bringing your gaming visions to life with cutting-edge technology.
             </p>
             <div className="flex gap-4">
-              <Button variant="ghost" size="icon" className="hover:text-primary">
-                <Twitter className="w-4 h-4" />
+              <Button asChild variant="ghost" size="icon" className="hover:text-primary gap-2">
+                <a href="https://x.com/bevium" target="_blank" rel="noopener noreferrer">
+                  <Twitter className="w-4 h-4" />
+                </a>
               </Button>
-              <Button variant="ghost" size="icon" className="hover:text-primary">
-                <Linkedin className="w-4 h-4" />
+              <Button asChild variant="ghost" size="icon" className="hover:text-primary gap-2">
+                <a href="https://www.linkedin.com/company/bevium/" target="_blank" rel="noopener noreferrer">
+                  <Linkedin className="w-4 h-4" />
+                </a>
               </Button>
-              <Button variant="ghost" size="icon" className="hover:text-primary">
-                <Mail className="w-4 h-4" />
+              <Button asChild variant="ghost" size="icon" className="hover:text-primary gap-2">
+                <a href="https://www.instagram.com/bevium_it/" target="_blank" rel="noopener noreferrer">
+                  <Instagram className="w-4 h-4" />
+                </a>
               </Button>
             </div>
           </div>
@@ -124,7 +131,7 @@ const Footer = () => {
             <div className="text-sm text-muted-foreground">
               © {currentYear} Bevium Studios. All rights reserved.
             </div>
-            
+
             <div className="flex items-center gap-4">
               <button className="text-sm text-muted-foreground hover:text-primary transition-colors">
                 Privacy Policy

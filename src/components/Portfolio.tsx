@@ -303,18 +303,23 @@ const Portfolio = () => {
                             Don't miss anything
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Button variant="gaming" size="lg">
-                                <Twitter className="w-4 h-4" />
-                                X
+                            
+                            <Button asChild variant="gaming" size="lg">
+                                <a href="https://x.com/bevium" target="_blank" rel="noopener noreferrer">
+                                    <Twitter className="w-4 h-4" /> X
+                                </a>
                             </Button>
-                            <Button variant="gaming" size="lg">
-                                <Instagram className="w-4 h-4" />
-                                Instagram
+                            <Button asChild variant="gaming" size="lg">
+                                <a href="https://www.linkedin.com/company/bevium/" target="_blank" rel="noopener noreferrer">
+                                    <Linkedin className="w-4 h-4" /> Linkedin
+                                </a>
                             </Button>
-                            <Button variant="gaming" size="lg">
-                                <Linkedin className="w-4 h-4" />
-                                LinkedIn
+                            <Button asChild variant="gaming" size="lg">
+                                <a href="https://www.instagram.com/bevium_it/" target="_blank" rel="noopener noreferrer">
+                                    <Instagram className="w-4 h-4" /> Instagram
+                                </a>
                             </Button>
+
                         </div>
 
                     </div>
