@@ -11,6 +11,11 @@ import {
   Lightbulb
 } from "lucide-react";
 
+const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    element?.scrollIntoView({ behavior: 'smooth' });
+};
+
 const About = () => {
   const stats = [
     { icon: Clock, value: "10+", label: "Years Experience", color: "text-primary" },
@@ -66,7 +71,7 @@ const About = () => {
               </p>
             </div>
 
-            <Button variant="hero" size="lg" className="group">
+            <Button variant="hero" size="lg" className="group" onClick={() => scrollToSection('contact')}>
               Work With Us
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Button>

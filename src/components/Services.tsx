@@ -11,6 +11,11 @@ import {
   CheckCircle
 } from "lucide-react";
 
+const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    element?.scrollIntoView({ behavior: 'smooth' });
+};
+
 const Services = () => {
   const services = [
     {
@@ -112,7 +117,7 @@ const Services = () => {
             <p className="text-muted-foreground mb-6">
               Let's discuss how we can bring your gaming vision to life with our Unreal Engine expertise.
             </p>
-            <Button variant="hero" size="lg" className="group">
+            <Button variant="hero" size="lg" className="group" onClick={() => scrollToSection('contact')}>
               Get a Free Consultation
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Button>

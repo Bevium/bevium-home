@@ -14,6 +14,11 @@ import {
     Linkedin
 } from "lucide-react";
 
+const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    element?.scrollIntoView({ behavior: 'smooth' });
+};
+
 const Portfolio = () => {
     const games = [
         {
@@ -313,7 +318,7 @@ const Portfolio = () => {
                             Let's collaborate to create something amazing. Our team is ready to tackle your next gaming challenge.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Button variant="hero" size="lg" className="group">
+                            <Button variant="hero" size="lg" className="group" onClick={() => scrollToSection('contact')}>
                                 Start Your Project
                                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                             </Button>
