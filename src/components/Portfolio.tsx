@@ -214,7 +214,7 @@ const Portfolio = () => {
                                                         </Button>
 
                                                         {game.projectUrl && (
-                                                            <Button asChild variant="secondary" size="sm" className="group">
+                                                            <Button asChild variant="gaming" size="sm" className="group">
                                                                 <a href={game.projectUrl} target="_blank" rel="noopener noreferrer">
                                                                     <ExternalLink className="w-3 h-3 mr-1" />
                                                                     Project URL
