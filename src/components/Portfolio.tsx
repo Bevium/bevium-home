@@ -23,7 +23,8 @@ const Portfolio = () => {
             technologies: ["Unreal Engine 5", "Blueprint", "AI", "Procedural Generation"],
             status: "in-progress",
             features: ["Procedural dungeons", "Complex quests", "Character progression", "Dynamic storytelling"],
-            videoUrl: "https://www.youtube.com/embed/zsuoYxxonWA"
+            videoUrl: "https://www.youtube.com/embed/zsuoYxxonWA",
+            projectUrl: "https://illuvium.io"
         },
         {
             title: "Arcas Champions",
@@ -32,7 +33,8 @@ const Portfolio = () => {
             technologies: ["Unreal Engine 5", "Edgegap"],
             status: "completed",
             features: ["Dynamic weather", "Destructible environments", "Advanced AI racers", "Multiplayer racing"],
-            videoUrl: "https://www.youtube.com/embed/axoV3YVvNOM"
+            videoUrl: "https://www.youtube.com/embed/axoV3YVvNOM",
+            projectUrl: "https://www.arcaschampions.com/"
         },
         {
             title: "Star Atlas",
@@ -41,7 +43,8 @@ const Portfolio = () => {
             technologies: ["Unreal Engine 5", "Solana Blockchain"],
             status: "completed",
             features: ["VR interactions", "Spatial audio", "Physics puzzles", "Immersive environments"],
-            videoUrl: "https://www.youtube.com/embed/ciFSSd39pAY"
+            videoUrl: "https://www.youtube.com/embed/ciFSSd39pAY",
+            projectUrl: "https://staratlas.com/"
         }
     ];
 
@@ -71,6 +74,12 @@ const Portfolio = () => {
             case 'Integration': return ExternalLink;
             default: return Star;
         }
+    };
+
+    const toWatchUrl = (url: string) => {
+        // converts https://www.youtube.com/embed/VIDEOID -> https://www.youtube.com/watch?v=VIDEOID
+        const m = url.match(/youtube\.com\/embed\/([^?&#]+)/i);
+        return m ? `https://www.youtube.com/watch?v=${m[1]}` : url;
     };
 
     return (
@@ -164,7 +173,6 @@ const Portfolio = () => {
                                                     {/* Actions */}
                                                     <div className="flex gap-2">
                                                         <Button variant="gaming" size="sm" className="flex-1 group">
-                                                            <ExternalLink className="w-3 h-3 mr-1" />
                                                             View Details
                                                         </Button>
                                                     </div>
@@ -181,6 +189,7 @@ const Portfolio = () => {
                                                     </CardTitle>
                                                     <p className="text-sm text-muted-foreground">Gameplay Preview</p>
                                                 </CardHeader>
+
                                                 <CardContent className="flex-grow flex flex-col">
                                                     <div className="aspect-video bg-muted rounded-md overflow-hidden mb-4 flex-grow">
                                                         <iframe
@@ -190,11 +199,23 @@ const Portfolio = () => {
                                                             allowFullScreen
                                                         />
                                                     </div>
-                                                    <div className="text-center">
-                                                        <Button variant="gaming" size="sm" className="group">
-                                                            <Play className="w-3 h-3 mr-1" />
-                                                            Watch Full Demo
+
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <Button asChild variant="gaming" size="sm" className="group">
+                                                            <a href={toWatchUrl(game.videoUrl)} target="_blank" rel="noopener noreferrer">
+                                                                <Play className="w-3 h-3 mr-1" />
+                                                                Watch Full Demo
+                                                            </a>
                                                         </Button>
+
+                                                        {game.projectUrl && (
+                                                            <Button asChild variant="secondary" size="sm" className="group">
+                                                                <a href={game.projectUrl} target="_blank" rel="noopener noreferrer">
+                                                                    <ExternalLink className="w-3 h-3 mr-1" />
+                                                                    Project URL
+                                                                </a>
+                                                            </Button>
+                                                        )}
                                                     </div>
                                                 </CardContent>
                                             </Card>
@@ -303,7 +324,7 @@ const Portfolio = () => {
                             Don't miss anything
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            
+
                             <Button asChild variant="gaming" size="lg">
                                 <a href="https://x.com/bevium" target="_blank" rel="noopener noreferrer">
                                     <Twitter className="w-4 h-4" /> X

@@ -96,10 +96,10 @@ const Services = () => {
                     </li>
                   ))}
                 </ul>
-                <Button variant="gaming" className="w-full group">
+                {/*<Button variant="gaming" className="w-full group">
                   Learn More
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                </Button>
+                </Button>*/}
               </CardContent>
             </Card>
           ))}
