@@ -240,10 +240,10 @@ const Contact = () => {
             {/* Contact Methods */}
             <div className="space-y-4">
               {contactInfo.map((info, index) => (
-                <Card key={index} className="gaming-card group cursor-pointer hover:scale-105 transition-transform duration-300">
+                <Card key={index} className="gaming-card group ">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-card flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-card flex items-center justify-center text-primary ">
                         <info.icon className="w-4 h-4" />
                       </div>
                       <div className="flex-1">
