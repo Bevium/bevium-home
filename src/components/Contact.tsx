@@ -2,15 +2,50 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  Mail, 
-  MessageSquare, 
-  Clock, 
+import {
+  Mail,
+  MessageSquare,
+  Clock,
   MapPin,
   Send,
   Phone,
   Zap
 } from "lucide-react";
+
+const buildMailto = ({
+  name,
+  email,
+  company,
+  budget,
+  service,
+  message,
+}: {
+  name: string;
+  email: string;
+  company?: string;
+  budget?: string;
+  service?: string;
+  message: string;
+}) => {
+  const to = "info@bevium.com";
+
+  const subject = `New project inquiry - ${name}${company ? ` (${company})` : ""}`;
+
+  const lines = [
+    `Name: ${name}`,
+    `Email: ${email}`,
+    company ? `Company: ${company}` : null,
+    budget ? `Budget: ${budget}` : null,
+    service ? `Service: ${service}` : null,
+    "",
+    "Message:",
+    message,
+  ].filter(Boolean) as string[];
+
+  const body = lines.join("\n");
+
+  return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+};
 
 const Contact = () => {
   const contactInfo = [
@@ -47,8 +82,25 @@ const Contact = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log("Form submitted");
+
+    // grab values from the form (if you use controlled state, read from state instead)
+    const formEl = e.target as HTMLFormElement;
+    const name = (formEl.querySelector<HTMLInputElement>("#name")?.value || "").trim();
+    const email = (formEl.querySelector<HTMLInputElement>("#email")?.value || "").trim();
+    const company = (formEl.querySelector<HTMLInputElement>("#company")?.value || "").trim();
+    const budget = (formEl.querySelector<HTMLSelectElement>("#budget")?.value || "").trim();
+    const service = (formEl.querySelector<HTMLSelectElement>("#service")?.value || "").trim();
+    const message = (formEl.querySelector<HTMLTextAreaElement>("#message")?.value || "").trim();
+
+    if (!name || !email || !message) {
+      alert("Please fill name, email, and project description.");
+      return;
+    }
+
+    const href = buildMailto({ name, email, company, budget, service, message });
+
+    // Open user’s default email client with prefilled email
+    window.location.href = href;
   };
 
   return (
@@ -85,7 +137,7 @@ const Contact = () => {
                       <label htmlFor="name" className="text-sm font-medium block mb-2">
                         Full Name
                       </label>
-                      <Input 
+                      <Input
                         id="name"
                         placeholder="John Doe"
                         className="bg-input/50 backdrop-blur border-border/50 focus:border-primary/50"
@@ -95,7 +147,7 @@ const Contact = () => {
                       <label htmlFor="email" className="text-sm font-medium block mb-2">
                         Email Address
                       </label>
-                      <Input 
+                      <Input
                         id="email"
                         type="email"
                         placeholder="john@company.com"
@@ -103,13 +155,13 @@ const Contact = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="company" className="text-sm font-medium block mb-2">
                         Company (Optional)
                       </label>
-                      <Input 
+                      <Input
                         id="company"
                         placeholder="Your Company"
                         className="bg-input/50 backdrop-blur border-border/50 focus:border-primary/50"
@@ -128,7 +180,7 @@ const Contact = () => {
                       </select>
                     </div>
                   </div>
-                  
+
                   <div>
                     <label htmlFor="service" className="text-sm font-medium block mb-2">
                       Service Type
@@ -142,19 +194,19 @@ const Contact = () => {
                       <option value="other">Other</option>
                     </select>
                   </div>
-                  
+
                   <div>
                     <label htmlFor="message" className="text-sm font-medium block mb-2">
                       Project Description
                     </label>
-                    <Textarea 
+                    <Textarea
                       id="message"
                       placeholder="Tell us about your project, goals, and requirements..."
                       rows={6}
                       className="bg-input/50 backdrop-blur border-border/50 focus:border-primary/50 resize-none"
                     />
                   </div>
-                  
+
                   <Button type="submit" variant="hero" size="lg" className="w-full group">
                     <Send className="w-4 h-4 mr-2" />
                     Send Message
