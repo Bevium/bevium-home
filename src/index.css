@@ -1,8 +1,37 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Self-hosted fonts */
+@layer base {
+  @font-face {
+    font-family: "Minora Trial";
+    src:
+      url("/src/assets/fonts/Minora-Trial-Regular.woff2") format("woff2"),
+      url("/src/assets/fonts/Minora-Trial-Regular.otf") format("opentype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Minora Trial";
+    src:
+      url("/src/assets/fonts/Minora-Trial-Bold.woff2") format("woff2"),
+      url("/src/assets/fonts/Minora-Trial-Bold.otf") format("opentype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Minora Trial";
+    src:
+      url("/src/assets/fonts/Minora-Trial-Black.woff2") format("woff2"),
+      url("/src/assets/fonts/Minora-Trial-Black.otf") format("opentype");
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+  }
+}
 
 /* Gaming Industry Design System - Dark theme with electric accents */
 
@@ -167,7 +196,7 @@
     }
 
     .hero-text {
-        font-family: 'Space Grotesk', sans-serif;
+        font-family: "Minora Trial", sans-serif;
         font-weight: 700;
         line-height: 1.1;
     }
