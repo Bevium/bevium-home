@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const scrollToSection = (sectionId: string) => {
@@ -48,8 +50,14 @@ const Navbar = () => {
             >
               Portfolio
             </button>
-            <Button 
-              variant="hero" 
+            <button
+              onClick={() => navigate('/blog')}
+              className="text-foreground hover:text-primary transition-colors"
+            >
+              Blog
+            </button>
+            <Button
+              variant="hero"
               onClick={() => scrollToSection('contact')}
             >
               Get Started
@@ -97,8 +105,8 @@ const Navbar = () => {
                 Portfolio
               </button>
               <div className="px-3 py-2">
-                <Button 
-                  variant="hero" 
+                <Button
+                  variant="hero"
                   className="w-full"
                   onClick={() => scrollToSection('contact')}
                 >
