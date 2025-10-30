@@ -13,7 +13,7 @@ import {
   Link as LinkIcon,
 } from "lucide-react";
 import BlogNavbar from "@/components/BlogNavbar";
-import { Footer } from "react-day-picker";
+import Footer from "@/components/Footer";
 
 function formatDate(d?: string) {
   if (!d) return "";
@@ -197,6 +197,7 @@ export default function BlogPost() {
         </div>
       </article>
     </React.Suspense>
+    <Footer/>
     </>
   );
 }

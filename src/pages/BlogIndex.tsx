@@ -15,6 +15,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import BlogNavbar from "@/components/BlogNavbar";
+import Footer from "@/components/Footer";
 
 function formatDate(d?: string) {
   if (!d) return "";
@@ -202,6 +203,7 @@ export default function BlogIndex() {
           )}
         </div>
       </section>
+      <Footer/>
     </>
   );
 }
