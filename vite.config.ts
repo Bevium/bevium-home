@@ -8,6 +8,21 @@ import remarkGfm from 'remark-gfm'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypePrettyCode from 'rehype-pretty-code'
+import rehypeRaw from 'rehype-raw'
+import { visit } from 'unist-util-visit'
+
+function rehypePrefixImages(base: string) {
+  return () => (tree: any) => {
+    visit(tree, 'element', (node: any) => {
+      if (node.tagName === 'img' && node.properties?.src) {
+        const src: string = node.properties.src.replace(/\\/g, '/'); // fix backslashes
+        if (/^(https?:)?\/\//.test(src)) return;                      // leave absolute URLs
+        const withoutLeading = src.replace(/^\/+/, '');
+        node.properties.src = `${base}${withoutLeading}`;
+      }
+    });
+  };
+}
 
 export default defineConfig(({ mode }) => ({
   server: {
@@ -23,6 +38,7 @@ export default defineConfig(({ mode }) => ({
         remarkGfm,                            // tables, task-lists, strikethrough, autolinks
       ],
       rehypePlugins: [
+         [rehypeRaw, { passThrough: ['mdxjsEsm', 'mdxJsxFlowElement', 'mdxJsxTextElement'] }],
         rehypeSlug,                           // ids on headings
         [rehypeAutolinkHeadings, {           // clickable heading anchors
           behavior: 'wrap'
@@ -31,6 +47,7 @@ export default defineConfig(({ mode }) => ({
           theme: 'github-dark',               // pick any shiki theme you like
           keepBackground: false
         }],
+        rehypePrefixImages('/')
       ],
     }),
     react()

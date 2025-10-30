@@ -1,7 +1,7 @@
 import fg from 'fast-glob'
 import fs from 'fs'
 import matter from 'gray-matter'
-import { RSS } from 'rss'
+import RSS from 'rss'
 
 const SITE = 'https://<your-gh-username>.github.io/<repo-name>'
 const FEED = new RSS({
