@@ -13,6 +13,7 @@ import {
   Link as LinkIcon,
 } from "lucide-react";
 import BlogNavbar from "@/components/BlogNavbar";
+import { Footer } from "react-day-picker";
 
 function formatDate(d?: string) {
   if (!d) return "";
