@@ -126,15 +126,15 @@ export default function BlogPost() {
 
               {/* Share actions */}
               <div className="flex flex-wrap gap-2 pt-2">
-                <Button variant="outline" className="gap-2" onClick={copyLink}>
+                <Button variant="gaming" className="gap-2" onClick={copyLink}>
                   <LinkIcon className="w-4 h-4" />
                   Copy Link
                 </Button>
-                <Button variant="outline" className="gap-2" onClick={shareToX}>
+                <Button variant="gaming" className="gap-2" onClick={shareToX}>
                   <Share2 className="w-4 h-4" />
                   Share on X
                 </Button>
-                <Button variant="outline" className="gap-2" onClick={shareToLinkedIn}>
+                <Button variant="gaming" className="gap-2" onClick={shareToLinkedIn}>
                   <Share2 className="w-4 h-4" />
                   Share on LinkedIn
                 </Button>

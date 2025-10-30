@@ -7,6 +7,7 @@ type Meta = {
   tags?: string[];
   slug?: string;
   ogImage?: string;
+  featured?: boolean;
 };
 
 const eager = import.meta.glob('./content/posts/**/*.{md,mdx}', { eager: true }) as Record<string, any>;
