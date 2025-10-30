@@ -1,12 +1,13 @@
 ---
-title: "Texture size is a hidden tower of Babel"
-tags: ["Unreal Engine 5", "Texure"]
+title: "BC7 Compression in UE5: Avoiding Silent RGBA8 Fallbacks"
+description: "Learn why UE5 quietly falls back to B8G8R8A8 when sizes aren’t divisible by 4, how that balloons memory 4×, and add a UE5.6 editor validator to catch it."
+tags: ["Unreal Engine 5", "Textures", "BC7", "Compression", "Performance", "Editor Scripting", "C++", "Asset Validation"]
 ogImage: "/images/blog/default-cover.jpg"
 ---
 
 # Texture size is a hidden tower of Babel
 
-<img src="images\blog\BC7Compression\nostorage.png" alt="Storage space dwindling" style="display:block;margin:0 auto;max-width:360px">
+<img src="/images/blog/bc7-ue5/nostorage.png" alt="Storage space dwindling" style="display:block;margin:0 auto;max-width:360px">
 <br>
 
 Textures are the quiet space hogs in Unreal. Give them free rein and they’ll outsize everything else, then come back to tax your frame budget and your team’s momentum as the project scales.
@@ -30,14 +31,14 @@ Let's do some testing to verify all this. Let's take, for example, this image of
 **Resolution**: 3862x3862 (not divisible by 4),
 **Original Filesize**: 26,8 MB.
 
-<img src="images\blog\BC7Compression\screen_nodiv-1.png" alt="Crab Nebula, Uncompressed" style="display:block;margin:0 auto;max-width:720px">
+<img src="/images/blog/bc7-ue5/screen_nodiv-1.png" alt="Crab Nebula, Uncompressed" style="display:block;margin:0 auto;max-width:720px">
 <br>
 
 As you can see, we told UE5 to use **BC7**, but it instead resorted to using **B8G8R8A8**. That's because the image's resolution is not divisible by 4, and thus the compression fails. The resulting filesize is a whopping **56.26 MBs**. That's even larger than the original filesize on our file system, before importing the texture.
 
 What happens when, instead, the image's resolution is actually divisible by 4? Let's bump up the resolution by just 2 pixels on both axes, bringing it to 3864x3864. This makes it possible to compress the image using BC7.
 
-<img src="images\blog\BC7Compression\screen_withdiv-1.png" alt="Crab Nebula, Compressed" style="display:block;margin:0 auto;max-width:720px">
+<img src="/images/blog/bc7-ue5/screen_withdiv-1.png" alt="Crab Nebula, Compressed" style="display:block;margin:0 auto;max-width:720px">
 <br>
 
 Well would you look at that, this time the image actually compressed. The resulting filesize is now 14.58 MBs, more or less a 45% decrease in filesize.
@@ -73,17 +74,17 @@ Here is a quick example for a simple asset validator that you can test yourself,
 UCLASS()
 class UBC7TextureValidator : public UEditorValidatorBase
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	UBC7TextureValidator();
+    UBC7TextureValidator();
 
-	// New signatures: both FAssetData and UObject*
-	virtual bool CanValidateAsset_Implementation(const FAssetData& InAssetData,
+    // New signatures: both FAssetData and UObject*
+    virtual bool CanValidateAsset_Implementation(const FAssetData& InAssetData,
                                                         UObject* InObject,
                                                         FDataValidationContext& InContext) const override;
 
-	virtual EDataValidationResult ValidateLoadedAsset_Implementation(const FAssetData& InAssetData,
+    virtual EDataValidationResult ValidateLoadedAsset_Implementation(const FAssetData& InAssetData,
                                                                             UObject* InAsset,
                                                                             FDataValidationContext& Context) override;
 };
@@ -154,7 +155,7 @@ EDataValidationResult UBC7TextureValidator::ValidateLoadedAsset_Implementation(c
 
 This code, updated for the new EditorValidatorBase API in Unreal Engine 5.6, will check the resolution of all textures that are marked to be compressed using BC7, and if the resolution is invalid, then it will nag you like so:
 
-<img src="images\blog\BC7Compression\ImageValidator.png" alt="Image validator" style="display:block;margin:0 auto;max-width:720px">
+<img src="/images/blog/bc7-ue5/ImageValidator.png" alt="Image validator" style="display:block;margin:0 auto;max-width:720px">
 <br>
 
 The validator will straight up tell you that the image is not disivible by 4, and provide a link to the asset at fault. From here, you can also create similar validator for other types of images.
