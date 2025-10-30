@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { posts, postBySlug } from "../blog";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -11,10 +11,11 @@ import {
   Share2,
   Tag as TagIcon,
   Link as LinkIcon,
+  X,
+  ZoomOut,
 } from "lucide-react";
 import BlogNavbar from "@/components/BlogNavbar";
 import Footer from "@/components/Footer";
-import mediumZoom, { Zoom } from "medium-zoom";
 
 function formatDate(d?: string) {
   if (!d) return "";
@@ -34,7 +35,7 @@ export default function BlogPost() {
   const entry = postBySlug.get(slug);
   if (!entry) return <div className="container-custom py-16">Post not found.</div>;
 
-  const MDX = React.lazy(entry.import as any);
+  const MDX = useMemo(() => React.lazy(entry.import as any), [entry.import]);
   const meta = entry.meta || {};
 
   const base = import.meta.env.BASE_URL;
@@ -52,9 +53,7 @@ export default function BlogPost() {
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(url);
-    } catch {
-      // noop
-    }
+    } catch {}
   };
 
   const shareToX = () => {
@@ -69,35 +68,37 @@ export default function BlogPost() {
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${u}`, "_blank");
   };
 
-  // ---- Image zoom setup with MutationObserver ----
-  const contentRef = useRef<HTMLDivElement>(null);
+  // ---- Lightweight lightbox (no deps) ----
+  const [zoomSrc, setZoomSrc] = useState<string | null>(null);
+  const [hoveringImg, setHoveringImg] = useState(false);
+  const isTouch = typeof window !== "undefined" && ("ontouchstart" in window || navigator.maxTouchPoints > 0);
 
   useEffect(() => {
-    // Wait a tick to ensure MDX is in the DOM
-    const id = requestAnimationFrame(() => {
-      // Attach to all images inside your rendered article content
-      const zoom = mediumZoom(".prose img:not([data-no-zoom])", {
-        background: "rgba(0,0,0,0.85)",
-        margin: 24,
-        scrollOffset: 60,
-      });
-
-      // Optional: expose for quick debugging in DevTools
-      // @ts-ignore
-      window.__zoom = zoom;
-    });
-
+    if (!zoomSrc) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setZoomSrc(null);
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
     return () => {
-      cancelAnimationFrame(id);
-      // If you want to be extra clean on route change:
-      try {
-        // @ts-ignore
-        window.__zoom?.detach?.();
-        // @ts-ignore
-        window.__zoom = undefined;
-      } catch { }
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previous;
     };
-  }, [slug]);
+  }, [zoomSrc]);
+
+  const onContentClick: React.MouseEventHandler<HTMLDivElement> = (e) => {
+    const target = e.target as HTMLElement | null;
+    if (!target) return;
+
+    let img: HTMLImageElement | null = null;
+    if (target.tagName === "IMG") img = target as HTMLImageElement;
+    else img = target.closest?.("img");
+
+    if (!img) return;
+    if (img.dataset.noZoom !== undefined) return;
+
+    const src = img.currentSrc || img.src;
+    if (src) setZoomSrc(src);
+  };
 
   return (
     <>
@@ -123,7 +124,7 @@ export default function BlogPost() {
                     src={cover}
                     alt={meta.title ?? entry.slug}
                     className="w-full h-full object-cover"
-                    data-no-zoom // don’t zoom the hero
+                    data-no-zoom
                   />
                 </div>
               )}
@@ -155,6 +156,7 @@ export default function BlogPost() {
                   <CardDescription className="text-base">{meta.description}</CardDescription>
                 )}
 
+                {/* Share actions */}
                 <div className="flex flex-wrap gap-2 pt-2">
                   <Button variant="gaming" className="gap-2" onClick={copyLink}>
                     <LinkIcon className="w-4 h-4" />
@@ -173,7 +175,7 @@ export default function BlogPost() {
 
               <CardContent>
                 <div
-                  ref={contentRef}
+                  onClick={onContentClick}
                   className="prose max-w-none prose-invert prose-headings:font-space-grotesk prose-h1:text-foreground prose-h2:text-foreground prose-p:text-muted-foreground prose-li:marker:text-muted-foreground"
                 >
                   <MDX />
@@ -226,8 +228,43 @@ export default function BlogPost() {
               )}
             </div>
 
-            {/* Comments */}
-            {/* <div className="mt-10"><GiscusComments /></div> */}
+            {/* Lightbox overlay */}
+            {zoomSrc && (
+              <div
+                className="fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+                onClick={() => setZoomSrc(null)}
+                role="dialog"
+                aria-modal="true"
+              >
+                {/* Close button */}
+                <button
+                  aria-label="Close image"
+                  className="absolute top-4 right-4 rounded-full bg-white/10 hover:bg-white/20 text-white p-2 shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50"
+                  onClick={(e) => { e.stopPropagation(); setZoomSrc(null); }}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+
+                {/* Zoom-out hint (hidden while hovering the image on non-touch) */}
+                {(!hoveringImg || isTouch) && (
+                  <div className="pointer-events-none absolute bottom-4 inset-x-0 flex justify-center">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-white/10 text-white px-3 py-1 text-xs shadow">
+                      <ZoomOut className="w-4 h-4" />
+                      <span>Click to close</span>
+                    </div>
+                  </div>
+                )}
+
+                <img
+                  src={zoomSrc}
+                  alt=""
+                  className="max-h-[90vh] max-w-[90vw] object-contain shadow-2xl rounded-lg"
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseEnter={() => setHoveringImg(true)}
+                  onMouseLeave={() => setHoveringImg(false)}
+                />
+              </div>
+            )}
           </div>
         </article>
       </React.Suspense>
