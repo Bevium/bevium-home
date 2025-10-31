@@ -1,22 +1,38 @@
 import { Button } from "@/components/ui/button";
 import {
-  Github,
   Twitter,
   Linkedin,
-  Mail,
-  Gamepad2,
+  Instagram,
   ArrowUp,
-  Instagram
+  Gamepad2,
 } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Footer = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const base = import.meta.env.BASE_URL;
+  const logoSrc = `${base}images/logo.svg`;
+
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const goHomeThen = (cb?: () => void) => {
+    if (location.pathname !== "/") {
+      navigate("/");
+      // let the home mount, then scroll
+      setTimeout(() => cb?.(), 60);
+    } else {
+      cb?.();
+    }
   };
 
   const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    element?.scrollIntoView({ behavior: 'smooth' });
+    goHomeThen(() => {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
+    });
   };
 
   const currentYear = new Date().getFullYear();
@@ -24,7 +40,7 @@ const Footer = () => {
   return (
     <footer className="relative border-t border-border bg-card/30 backdrop-blur">
       {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
+      <div className="absolute inset-0 opacity-5 pointer-events-none">
         <div className="absolute top-10 left-10 w-20 h-20 border border-primary rounded-full" />
         <div className="absolute bottom-20 right-20 w-16 h-16 border border-accent rounded-full" />
         <div className="absolute top-32 right-32 w-12 h-12 border border-gaming-purple rounded-full" />
@@ -35,30 +51,42 @@ const Footer = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 py-16">
           {/* Company Info */}
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-                <Gamepad2 className="w-4 h-4 text-primary-foreground" />
-              </div>
-              <h3 className="text-xl font-space-grotesk font-bold text-gradient">
-                Bevium Studios
-              </h3>
+            <div className="flex items-center gap-3 mb-4">
+              {/* Logo button → home */}
+              <button
+                onClick={() => goHomeThen(() => document.getElementById("home")?.scrollIntoView({ behavior: "smooth" }))}
+                aria-label="Go to homepage"
+                className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary/40 rounded-md"
+              >
+                <img
+                  src={logoSrc}
+                  alt="Bevium Studios"
+                  className="h-9 w-auto md:h-10 select-none"
+                  draggable={false}
+                />
+              </button>
+
+
             </div>
+
             <p className="text-muted-foreground mb-6 max-w-md">
-              Specializing in Unreal Engine game development, custom plugins, and seamless third-party integrations. Bringing your gaming visions to life with cutting-edge technology.
+              Specializing in Unreal Engine game development, custom plugins, and seamless third-party integrations.
+              Bringing your gaming visions to life with cutting-edge technology.
             </p>
+
             <div className="flex gap-4">
               <Button asChild variant="ghost" size="icon" className="hover:text-primary gap-2">
-                <a href="https://x.com/bevium" target="_blank" rel="noopener noreferrer">
+                <a href="https://x.com/bevium" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)">
                   <Twitter className="w-4 h-4" />
                 </a>
               </Button>
               <Button asChild variant="ghost" size="icon" className="hover:text-primary gap-2">
-                <a href="https://www.linkedin.com/company/bevium/" target="_blank" rel="noopener noreferrer">
+                <a href="https://www.linkedin.com/company/bevium/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
                   <Linkedin className="w-4 h-4" />
                 </a>
               </Button>
               <Button asChild variant="ghost" size="icon" className="hover:text-primary gap-2">
-                <a href="https://www.instagram.com/bevium_it/" target="_blank" rel="noopener noreferrer">
+                <a href="https://www.instagram.com/bevium_it/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                   <Instagram className="w-4 h-4" />
                 </a>
               </Button>
@@ -71,7 +99,7 @@ const Footer = () => {
             <ul className="space-y-2">
               <li>
                 <button
-                  onClick={() => scrollToSection('home')}
+                  onClick={() => scrollToSection("home")}
                   className="text-muted-foreground hover:text-primary transition-colors text-sm"
                 >
                   Home
@@ -79,7 +107,7 @@ const Footer = () => {
               </li>
               <li>
                 <button
-                  onClick={() => scrollToSection('services')}
+                  onClick={() => scrollToSection("services")}
                   className="text-muted-foreground hover:text-primary transition-colors text-sm"
                 >
                   Services
@@ -87,7 +115,7 @@ const Footer = () => {
               </li>
               <li>
                 <button
-                  onClick={() => scrollToSection('about')}
+                  onClick={() => scrollToSection("about")}
                   className="text-muted-foreground hover:text-primary transition-colors text-sm"
                 >
                   About
@@ -95,7 +123,7 @@ const Footer = () => {
               </li>
               <li>
                 <button
-                  onClick={() => scrollToSection('portfolio')}
+                  onClick={() => scrollToSection("portfolio")}
                   className="text-muted-foreground hover:text-primary transition-colors text-sm"
                 >
                   Portfolio
@@ -103,7 +131,7 @@ const Footer = () => {
               </li>
               <li>
                 <button
-                  onClick={() => scrollToSection('contact')}
+                  onClick={() => scrollToSection("contact")}
                   className="text-muted-foreground hover:text-primary transition-colors text-sm"
                 >
                   Contact

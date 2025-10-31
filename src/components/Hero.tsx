@@ -2,15 +2,16 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Gamepad2, Cpu, Zap } from "lucide-react";
 
 const Hero = () => {
+  const base = import.meta.env.BASE_URL;                     
+  const logoSrc = `${base}images/logo.svg`;                  
+
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
-    element?.scrollIntoView({ behavior: 'smooth' });
+    element?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
     <section id="home" className="min-h-screen flex items-center relative overflow-hidden">
-
-
       {/* Background Gradient Overlay */}
       <div className="absolute inset-0 z-10 bg-gradient-hero" />
 
@@ -18,7 +19,7 @@ const Hero = () => {
       <div className="absolute top-20 right-20 animate-float z-20">
         <div className="w-16 h-16 bg-primary/20 rounded-full blur-xl animate-glow" />
       </div>
-      <div className="absolute bottom-32 left-16 animate-float z-20" style={{ animationDelay: '2s' }}>
+      <div className="absolute bottom-32 left-16 animate-float z-20" style={{ animationDelay: "2s" }}>
         <div className="w-24 h-24 bg-accent/20 rounded-full blur-xl animate-glow" />
       </div>
 
@@ -31,12 +32,20 @@ const Hero = () => {
             <span className="text-sm font-medium">Your Technical Partner</span>
           </div>
 
-          {/* Main Heading */}
-          <h1 className="hero-text text-5xl md:text-7xl mb-6 animate-fade-in">
-            <span className="text-gradient">Bevium</span>
-            <br />
-            <span className="text-foreground">Elevate your games</span>
-          </h1>
+          {/* Heading with Logo + Tagline */}
+          <div className="animate-fade-in">
+            {/* Logo */}
+            <img
+              src={logoSrc}
+              alt="Bevium Studios"
+              className="mx-auto mb-3 h-14 w-auto md:h-16 select-none"
+              draggable={false}
+            />
+            {/* Tagline */}
+            <h1 className="hero-text text-4xl md:text-6xl">
+              <span className="text-foreground">Elevate your games</span>
+            </h1>
+          </div>
 
           {/* Subheading */}
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in-delay">
@@ -61,20 +70,11 @@ const Hero = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in-delay">
-            <Button
-              variant="hero"
-              size="lg"
-              onClick={() => scrollToSection("services")}
-              className="group"
-            >
+            <Button variant="hero" size="lg" onClick={() => scrollToSection("services")} className="group">
               Explore Our Services
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Button>
-            <Button
-              variant="gaming"
-              size="lg"
-              onClick={() => scrollToSection("portfolio")}
-            >
+            <Button variant="gaming" size="lg" onClick={() => scrollToSection("portfolio")}>
               <Gamepad2 className="w-4 h-4" />
               View Portfolio
             </Button>

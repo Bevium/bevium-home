@@ -1,11 +1,35 @@
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 const BlogNavbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const base = import.meta.env.BASE_URL;
+  const logoSrc = `${base}images/logo.svg`; 
+
+  const closeMenu = () => setIsMenuOpen(false);
+
+  const goHome = () => {
+    navigate("/");
+    closeMenu();
+    if (location.pathname === "/") {
+      try { document.getElementById("home")?.scrollIntoView({ behavior: "smooth" }); } catch { }
+    }
+  };
+
+  const goContact = () => {
+    if (location.pathname !== "/") {
+      navigate("/");
+      setTimeout(() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" }), 50);
+    } else {
+      document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+    }
+    closeMenu();
+  };
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -13,10 +37,16 @@ const BlogNavbar = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo (click → home) */}
           <button
-            onClick={() => navigate("/")}
-            className="text-xl font-space-grotesk font-bold text-gradient"
+            onClick={goHome}
+            className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary/40 rounded-md"
+            aria-label="Go to homepage"
           >
-            Bevium Studios
+            <img
+              src={logoSrc}
+              alt="Bevium Studios"
+              className="h-8 w-auto md:h-9"
+              draggable={false}
+            />
           </button>
 
           {/* Desktop */}
@@ -24,14 +54,14 @@ const BlogNavbar = () => {
             <Link to="/blog" className="text-foreground hover:text-primary transition-colors">
               All Articles
             </Link>
-            <Button variant="hero" onClick={() => navigate("/")}>
+            <Button variant="hero" onClick={goHome}>
               Back to Home
             </Button>
           </div>
 
           {/* Mobile toggle */}
           <div className="md:hidden">
-            <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(v => !v)}>
+            <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(v => !v)} aria-label="Toggle menu">
               {isMenuOpen ? <X /> : <Menu />}
             </Button>
           </div>
@@ -41,36 +71,27 @@ const BlogNavbar = () => {
         {isMenuOpen && (
           <div className="md:hidden bg-card/95 backdrop-blur-md border-t border-border">
             <div className="px-2 pt-2 pb-3 space-y-1">
-              <Link
-                to="/"
-                onClick={() => setIsMenuOpen(false)}
+              <button
+                onClick={goHome}
                 className="block w-full text-left px-3 py-2 text-foreground hover:text-primary hover:bg-muted rounded-md transition-colors"
               >
                 Home
-              </Link>
+              </button>
               <Link
                 to="/blog"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={closeMenu}
                 className="block w-full text-left px-3 py-2 text-foreground hover:text-primary hover:bg-muted rounded-md transition-colors"
               >
                 All Articles
               </Link>
-              <a
-                href="/#contact"
-                onClick={() => setIsMenuOpen(false)}
+              <button
+                onClick={goContact}
                 className="block w-full text-left px-3 py-2 text-foreground hover:text-primary hover:bg-muted rounded-md transition-colors"
               >
                 Contact
-              </a>
+              </button>
               <div className="px-3 py-2">
-                <Button
-                  variant="hero"
-                  className="w-full"
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    navigate("/");
-                  }}
-                >
+                <Button variant="hero" className="w-full" onClick={goHome}>
                   Back to Home
                 </Button>
               </div>
