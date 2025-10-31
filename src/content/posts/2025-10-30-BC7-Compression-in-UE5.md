@@ -3,6 +3,7 @@ title: "BC7 Compression in UE5: Avoiding Silent RGBA8 Fallbacks"
 description: "Learn why UE5 quietly falls back to B8G8R8A8 when sizes aren’t divisible by 4, how that balloons memory 4×, and add a UE5.6 editor validator to catch it."
 tags: ["Unreal Engine 5", "Textures", "BC7", "Compression", "Performance", "Editor Scripting", "C++", "Asset Validation"]
 ogImage: "/images/blog/bc7-ue5/bc7-cover.jpg"
+date: "10-30-2025"
 ---
 
 # Texture size is a hidden tower of Babel

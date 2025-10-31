@@ -3,6 +3,7 @@ title: "UE5 + GAS: How the Glide Ability Works"
 description: "A practical walkthrough of our Glide ability in UE5 using the Gameplay Ability System. Activation, physics tuning, stamina, UI hooks, and clean teardown."
 tags: ["Unreal Engine 5", "GAS", "ArcasChampions" , "Character Movement", "C++", "Gameplay Ability"]
 ogImage: "/images/blog/2025-10-30-how-to-implement-a-glide-ability/Stamina.gif"
+date: "10-30-2025"
 ---
 
 # How the `Arcas Champions Glide Ability` works
