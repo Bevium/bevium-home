@@ -1,6 +1,6 @@
 ---
 title: "ArcasAI - Implementation Retrospect"
-date: "11-03-2025"
+date: "10-31-2025"
 description: "Reflecting on the challenges and findings that we encountered while implemented the Artificial Intelligence agents in Arcas Champions."
 tags: ["Unreal Engine 5", "AI", "Artificial", "Intelligence", "Artificial Intelligence", "UE5", "C++"]
 ogImage: "/images/blog/2025-10-31-arcasai-implementation-retrospective/gif_cover.gif"
@@ -18,6 +18,26 @@ In addition, we have extensively used the UE5 perception system, as we had the n
 Lastly, we made extensive use of Sub-Behavior Trees. While we will not show the whole behavior tree for brevity's sake, this was very important when we had to scale the AI in complexity. Behavior trees get very deep very quickly, and a deep behavior tree is much, much more unwieldy than many, smaller and shallower trees.
 
 ## Table of Contents
+
+* [A flexible, context-aware multiplayer-ready AI that leverages GAS at its fullest](#a-flexible-context-aware-multiplayer-ready-ai-that-leverages-gas-at-its-fullest)
+* [Requirements overview](#requirements-overview)
+* [Static Paths](#static-paths)
+
+  * [Example usage](#example-usage)
+* [AI States and Context](#ai-states-and-context)
+
+  * [State](#state)
+  * [Context](#context)
+* [GAS Integration](#gas-integration)
+* [Perception system usage](#perception-system-usage)
+
+  * [FSensedTarget](#fsensedtarget)
+* [EQS](#eqs)
+
+  * [EngageEnemy (pick a firing position)](#engageenemy-pick-a-firing-position)
+  * [FindCoverFromEnemy (break LOS and relocate)](#findcoverfromenemy-break-los-and-relocate)
+* [Conclusion](#conclusion)
+
 
 
 ## Requirements overview
@@ -81,6 +101,7 @@ Bonzette’s job in the tutorial is to introduce the Synergy mechanic. She evalu
 Under the hood there is no cinematic track or hidden shortcut. The tutorial only sets the follow target and the step conditions. The upgrade itself flows through the regular subtree that powers co-op support in multiplayer.
 
 <div style="display:flex;justify-content:center;align-items:center;gap:16px;flex-wrap:wrap;"> <img src="images/blog/2025-10-31-arcasai-implementation-retrospective/arcasai_bt_synergy.png" alt="Help with synergy" style="max-width:40%;height:auto;"> </div> <div style="display:flex;justify-content:center;align-items:center;gap:16px;flex-wrap:wrap;"> <i>Part of the 'Help with Synergy' subtree</i> </div> <br>
+
 For more information about the Synergy system, see the related article [here](https://bevium.it/blog/2025-10-31-synergy-totem-ability).
 
 ## AI States and Context
@@ -149,7 +170,7 @@ In the behavior tree, the state priority is declared exactly as follows:
 - Passive
 
 In truth, there is C++ code in the controller that ensures that two states can never run concurrently, as the behavior tree makes the strong assumption that the AI agent can only ever run one state at a time.
-	
+  
 Now the Context tags are a bit different:
 
 ### Context
