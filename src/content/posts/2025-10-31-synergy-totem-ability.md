@@ -3,7 +3,7 @@ title: "UE5 + GAS: How the Arcas Champions Synergy Ability works"
 description: "How a team-synergy totem ability forms combos, drives cues, and stays multiplayer-safe with Unreal Engine 5 and Gameplay Ability System."
 tags: ["Unreal Engine 5", "GAS", "ArcasChampions", "Multiplayer", "Gameplay Ability", "C++"]
 author: "Bevium"
-ogImage: "/images/blog/2025-10-31-synergy-totem-ability/Synergy_1_1.gif"
+ogImage: "/images/blog/2025-10-31-synergy-totem-ability/Synergy_16_9.gif"
 date: "10-31-2025"
 ---
 
