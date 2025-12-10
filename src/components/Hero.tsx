@@ -11,7 +11,10 @@ const Hero = () => {
   };
 
   return (
-    <section id="home" className="min-h-screen flex items-center relative overflow-hidden">
+    <section
+      id="home"
+      className="min-h-screen flex items-center relative overflow-hidden"
+    >
       {/* Background Gradient Overlay */}
       <div className="absolute inset-0 z-10 bg-gradient-hero" />
 
@@ -19,25 +22,27 @@ const Hero = () => {
       <div className="absolute top-20 right-20 animate-float z-20">
         <div className="w-16 h-16 bg-primary/20 rounded-full blur-xl animate-glow" />
       </div>
-      <div className="absolute bottom-32 left-16 animate-float z-20" style={{ animationDelay: "2s" }}>
+      <div
+        className="absolute bottom-32 left-16 animate-float z-20"
+        style={{ animationDelay: "2s" }}
+      >
         <div className="w-24 h-24 bg-accent/20 rounded-full blur-xl animate-glow" />
       </div>
 
       {/* Main Content */}
-      <div className="container-custom relative z-20">
-        <div className="max-w-4xl mx-auto text-center">
-
-
-          {/* Heading with Logo + Tagline */}
-          <div className="animate-fade-in">
-            {/* Logo */}
+      <div className="container-custom relative z-20 flex justify-center">
+        {/* Central column – this is your “horizontal length” */}
+        <div className="w-full max-w-4xl text-center flex flex-col items-center">
+          {/* Logo + Heading */}
+          <div className="animate-fade-in flex flex-col items-center">
+            {/* Logo: big but constrained inside the column */}
             <img
               src={logoSrc}
               alt="Bevium Studios"
-              className="mx-auto mb-3 h-14 w-auto md:h-16 select-none"
+              className="mx-auto mb-6 w-full max-w-[320px] md:max-w-[380px] lg:max-w-[420px] h-auto select-none"
               draggable={false}
             />
-            {/* Tagline */}
+
             <h1 className="hero-text text-4xl md:text-6xl">
               <span className="text-foreground">Your technical partner</span>
             </h1>
@@ -45,7 +50,9 @@ const Hero = () => {
 
           {/* Subheading */}
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in-delay mt-6">
-            We specialize in creating cutting-edge games and seamlessly integrating third-party services into Unreal Engine projects. From plugins to complete solutions.
+            We specialize in creating cutting-edge games and seamlessly integrating
+            third-party services into Unreal Engine projects. From plugins to complete
+            solutions.
           </p>
 
           {/* Tech Icons */}
@@ -68,7 +75,12 @@ const Hero = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in-delay mt-6">
-            <Button variant="hero" size="lg" onClick={() => scrollToSection("services")} className="group">
+            <Button
+              variant="hero"
+              size="lg"
+              onClick={() => scrollToSection("services")}
+              className="group"
+            >
               Explore Our Services
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Button>
