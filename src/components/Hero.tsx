@@ -2,8 +2,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Gamepad2, Cpu, Zap } from "lucide-react";
 
 const Hero = () => {
-  const base = import.meta.env.BASE_URL;                     
-  const logoSrc = `${base}images/logo.svg`;                  
+  const base = import.meta.env.BASE_URL;
+  const logoSrc = `${base}images/logo.svg`;
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -26,11 +26,7 @@ const Hero = () => {
       {/* Main Content */}
       <div className="container-custom relative z-20">
         <div className="max-w-4xl mx-auto text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-card/50 backdrop-blur border border-primary/20 rounded-full px-4 py-2 mb-6 animate-fade-in">
-            <Zap className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium">Your Technical Partner</span>
-          </div>
+
 
           {/* Heading with Logo + Tagline */}
           <div className="animate-fade-in">
@@ -43,45 +39,17 @@ const Hero = () => {
             />
             {/* Tagline */}
             <h1 className="hero-text text-4xl md:text-6xl">
-              <span className="text-foreground">Elevate your games</span>
+              <span className="text-foreground">Your technical partner</span>
             </h1>
           </div>
 
           {/* Subheading */}
-          <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in-delay">
+          <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in-delay mt-6">
             We specialize in creating cutting-edge games and seamlessly integrating third-party services into Unreal Engine projects. From plugins to complete solutions.
           </p>
 
-          {/* Stats */}
-          <div className="flex flex-wrap justify-center gap-8 mb-10 animate-fade-in-delay">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary">5+</div>
-              <div className="text-sm text-muted-foreground">Games Developed</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-accent">10+</div>
-              <div className="text-sm text-muted-foreground">Plugins Created</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-gaming-purple">10+</div>
-              <div className="text-sm text-muted-foreground">Years Experience</div>
-            </div>
-          </div>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in-delay">
-            <Button variant="hero" size="lg" onClick={() => scrollToSection("services")} className="group">
-              Explore Our Services
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </Button>
-            <Button variant="gaming" size="lg" onClick={() => scrollToSection("portfolio")}>
-              <Gamepad2 className="w-4 h-4" />
-              View Portfolio
-            </Button>
-          </div>
-
           {/* Tech Icons */}
-          <div className="flex justify-center items-center gap-8 mt-12 opacity-60 animate-fade-in-delay">
+          <div className="flex justify-center items-center gap-8 opacity-60 animate-fade-in-delay">
             <div className="flex items-center gap-2">
               <Cpu className="w-5 h-5 text-primary" />
               <span className="text-sm">Unreal Engine</span>
@@ -96,6 +64,18 @@ const Hero = () => {
               <Zap className="w-5 h-5 text-gaming-purple" />
               <span className="text-sm">Plugin Integration</span>
             </div>
+          </div>
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in-delay mt-6">
+            <Button variant="hero" size="lg" onClick={() => scrollToSection("services")} className="group">
+              Explore Our Services
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </Button>
+            <Button variant="gaming" size="lg" onClick={() => scrollToSection("portfolio")}>
+              <Gamepad2 className="w-4 h-4" />
+              View Portfolio
+            </Button>
           </div>
         </div>
       </div>

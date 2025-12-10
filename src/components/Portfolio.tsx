@@ -23,46 +23,68 @@ const Portfolio = () => {
     const games = [
         {
             title: "Illuvium",
-            description: "Epic fantasy RPG with complex quest systems and procedural dungeon generation.",
+            description:
+                "Open-world sci-fi RPG and auto-battler where you explore an alien planet, capture powerful Illuvials, and build synergistic teams across a shared game universe.",
             type: "Game",
-            technologies: ["Unreal Engine 5", "Blueprint", "AI", "Procedural Generation"],
+            technologies: ["Unreal Engine 5", "Ethereum / Immutable X"],
             status: "in-progress",
-            features: ["Procedural dungeons", "Complex quests", "Character progression", "Dynamic storytelling"],
+            features: [
+                "Explore a mysterious alien world, gathering resources and uncovering story content",
+                "Capture, evolve, and trade collectible Illuvials with distinct classes and affinities",
+                "Strategic auto-battler combat modes for both PvE and competitive PvP",
+                "Interoperable ecosystem where your assets and progress carry across multiple Illuvium titles",
+            ],
             videoUrl: "https://www.youtube.com/embed/zsuoYxxonWA",
-            projectUrl: "https://illuvium.io"
+            projectUrl: "https://illuvium.io",
         },
         {
             title: "Arcas Champions",
-            description: "Train you Champion, Glide into Battle, Control planet Arcas!",
+            description:
+                "Fast-paced third-person ability shooter where you train ape champions, wield fruit-powered weapons, and fight for control of the jungle planet Arcas.",
             type: "Game",
             technologies: ["Unreal Engine 5", "Edgegap"],
             status: "completed",
-            features: ["Dynamic weather", "Destructible environments", "Advanced AI racers", "Multiplayer racing"],
+            features: [
+                "Champion-based third-person shooter combat with unique stats and abilities",
+                "Fruit-powered weapons and over-the-top totem abilities",
+                "Skill-based movement with wall vaults, gliding, and powerful leaps",
+                "Team-based online modes and ranked competitive play on the jungle world of Arcas",
+            ],
             videoUrl: "https://www.youtube.com/embed/axoV3YVvNOM",
-            projectUrl: "https://www.arcaschampions.com/"
+            projectUrl: "https://www.arcaschampions.com/",
         },
         {
             title: "Star Atlas",
-            description: "Star Atlas is a high-fidelity, immersive space adventure and grand strategy MMO built in Unreal Engine 5 and sustained by a real galactic economy.",
+            description:
+                "High-fidelity sci-fi MMO where you command fleets, explore deep space, and compete in a player-driven economy built with Unreal Engine 5 and Solana.",
             type: "Game",
             technologies: ["Unreal Engine 5", "Solana Blockchain"],
-            status: "completed",
-            features: ["VR interactions", "Spatial audio", "Physics puzzles", "Immersive environments"],
+            status: "in-progress",
+            features: [
+                "Open-world space exploration with customizable starships and crews",
+                "Grand-strategy layer with territory control, factions, and diplomacy",
+                "Player-driven economy with on-chain ownership of ships, land, and other assets",
+                "Evolving game modules and seasons that expand the Star Atlas universe over time",
+            ],
             videoUrl: "https://www.youtube.com/embed/ciFSSd39pAY",
-            projectUrl: "https://staratlas.com/"
+            projectUrl: "https://staratlas.com/",
         }
     ];
 
     const toolsAndPlugins = [
         {
             title: "AI Dialogue Generator",
-            description: "Dialogue generator via LLM.",
+            description: "LLM Dialogue Generator is a modular system for Unreal Engine that allows you to generate dynamic, custom dialogues for NPCs, playable characters and any game entity. Built around a component, a subsystem and data assets, it supports asynchronous generation, streaming, pregeneration, and quality control of dialogue text.",
             type: "Plugin",
             technologies: ["Unreal Engine 5", "LLM", "AI"],
             status: "completed",
-            features: ["LLM Integration", "AI Integration", "Custom contexts"]
+            features: [" Ready-to-use components", "Asynchronous generation and streaming", "Blueprint friendly"],
+            fabLink: "https://www.fab.com/listings/cba84eed-2216-457b-b42c-4978c94dcc9c",
+            projectUrl: "/blog/2025_12_10_llm-dialogue-generator"
         }
     ];
+
+
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -164,8 +186,10 @@ const Portfolio = () => {
 
                                                     {/* Features */}
                                                     <div className="mb-6 flex-grow">
-                                                        <h4 className="text-sm font-medium mb-2 text-muted-foreground">Key Features:</h4>
-                                                        <ul className="text-xs text-muted-foreground space-y-1">
+                                                        <h4 className="text-sm font-medium mb-2 text-muted-foreground">
+                                                            Key Features:
+                                                        </h4>
+                                                        <ul className="text-xs text-muted-foreground space-y-1 text-left">
                                                             {game.features.map((feature, featureIndex) => (
                                                                 <li key={featureIndex} className="flex items-center gap-2">
                                                                     <div className="w-1 h-1 bg-gaming-blue rounded-full flex-shrink-0" />
@@ -285,8 +309,10 @@ const Portfolio = () => {
 
                                         {/* Features */}
                                         <div className="mb-6 flex-grow">
-                                            <h4 className="text-sm font-medium mb-2 text-muted-foreground">Key Features:</h4>
-                                            <ul className="text-xs text-muted-foreground space-y-1">
+                                            <h4 className="text-sm font-medium mb-2 text-muted-foreground">
+                                                Key Features:
+                                            </h4>
+                                            <ul className="text-xs text-muted-foreground space-y-1 text-left">
                                                 {plugin.features.map((feature, featureIndex) => (
                                                     <li key={featureIndex} className="flex items-center gap-2">
                                                         <div className="w-1 h-1 bg-primary rounded-full flex-shrink-0" />
@@ -297,12 +323,26 @@ const Portfolio = () => {
                                         </div>
 
                                         {/* Actions */}
-                                        <div className="flex gap-2">
-                                            <Button variant="gaming" size="sm" className="flex-1 group">
-                                                <ExternalLink className="w-3 h-3 mr-1" />
-                                                View Details
-                                            </Button>
+                                        <div className="flex flex-wrap gap-2">
+                                            {plugin.fabLink && (
+                                                <Button asChild variant="gaming" size="sm" className="flex-1 group">
+                                                    <a href={plugin.fabLink} target="_blank" rel="noopener noreferrer">
+                                                        <ExternalLink className="w-3 h-3 mr-1" />
+                                                        See on Fab
+                                                    </a>
+                                                </Button>
+                                            )}
+
+                                            {plugin.projectUrl && (
+                                                <Button asChild variant="gaming" size="sm" className="flex-1 group">
+                                                    <a href={plugin.projectUrl} target="_blank" rel="noopener noreferrer">
+                                                        <ExternalLink className="w-3 h-3 mr-1" />
+                                                        See Details
+                                                    </a>
+                                                </Button>
+                                            )}
                                         </div>
+
                                     </CardContent>
                                 </Card>
                             );
