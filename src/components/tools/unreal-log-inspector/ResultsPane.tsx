@@ -16,7 +16,6 @@ import {
   Copy,
   Sun,
   Moon,
-  Minus,
   Download,
   Share2,
   ChevronLeft,
@@ -55,7 +54,6 @@ function downloadFile(filename: string, mime: string, content: string) {
 }
 
 function csvEscape(v: string) {
-  // Quote if needed; also normalize CRLF
   const s = (v ?? "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
   if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
   return s;
@@ -75,10 +73,10 @@ export function ResultsPane(props: {
   filteredIndexes: number[];
   hasTimestamps: boolean;
 
-  navTargetPos: number | null; // position in filtered list (0..filteredIndexes.length-1)
-  navCurrent: number; // 1-based
+  navTargetPos: number | null;
+  navCurrent: number;
   navTotal: number;
-  navLabel: string; // "Error" or "Warn+"
+  navLabel: string;
   navNext: (scope?: "error" | "warn") => void;
   navPrev: (scope?: "error" | "warn") => void;
   navGoToLine: (line1Based: number) => boolean;
@@ -116,7 +114,7 @@ export function ResultsPane(props: {
   const [viewMode, setViewMode] = useState<"dark" | "light">("dark");
 
   // Export options
-  const [exportUseFull, setExportUseFull] = useState(true); // default: original UE line
+  const [exportUseFull, setExportUseFull] = useState(true);
   const [exportIncludeTs, setExportIncludeTs] = useState(true);
   const [exportIncludeFrame, setExportIncludeFrame] = useState(false);
 
@@ -152,9 +150,8 @@ export function ResultsPane(props: {
   function getExportLine(e: LogEntry) {
     const base = exportUseFull ? (e.full ?? e.raw) : e.raw;
 
-    if (exportUseFull) return base; // full already contains timestamp/frame if present
+    if (exportUseFull) return base;
 
-    // stripped export: optionally prefix metadata
     const parts: string[] = [];
     if (exportIncludeTs && typeof e.ts === "number") parts.push(`[${formatTs(e.ts)}]`);
     if (exportIncludeFrame && typeof e.frame === "number") parts.push(`[${e.frame}]`);
@@ -190,26 +187,21 @@ export function ResultsPane(props: {
   }
 
   async function onCopyFiltered() {
-    const txt = buildTxt();
-    await copyText(txt);
+    await copyText(buildTxt());
   }
 
   function onDownloadTxt() {
-    const txt = buildTxt();
-    downloadFile("unreal-log-filtered.txt", "text/plain;charset=utf-8", txt);
+    downloadFile("unreal-log-filtered.txt", "text/plain;charset=utf-8", buildTxt());
   }
 
   function onDownloadCsv() {
-    const csv = buildCsv();
-    downloadFile("unreal-log-filtered.csv", "text/csv;charset=utf-8", csv);
+    downloadFile("unreal-log-filtered.csv", "text/csv;charset=utf-8", buildCsv());
   }
 
   // -------- Navigator: scroll + keyboard --------
   useEffect(() => {
     if (navTargetPos == null) return;
     if (navTargetPos < 0 || navTargetPos >= filteredIndexes.length) return;
-
-    // center the target row
     rowVirtualizer.scrollToIndex(navTargetPos, { align: "center" });
   }, [navTargetPos, filteredIndexes.length, rowVirtualizer]);
 
@@ -220,9 +212,7 @@ export function ResultsPane(props: {
     if (!Number.isFinite(n) || n <= 0) return;
 
     const ok = navGoToLine(Math.floor(n));
-    if (!ok) {
-      console.warn("[LogInspector] line not in filtered view:", n);
-    }
+    if (!ok) console.warn("[LogInspector] line not in filtered view:", n);
   }, [navGoToLine]);
 
   useEffect(() => {
@@ -232,7 +222,6 @@ export function ResultsPane(props: {
 
       const key = e.key;
 
-      // n/p: error-only; Shift+n/p: warn+
       if (key === "n" || key === "N") {
         e.preventDefault();
         navNext(e.shiftKey ? "warn" : "error");
@@ -243,8 +232,6 @@ export function ResultsPane(props: {
         navPrev(e.shiftKey ? "warn" : "error");
         return;
       }
-
-      // g: go to line
       if (key === "g" || key === "G") {
         e.preventDefault();
         goToLinePrompt();
@@ -284,26 +271,12 @@ export function ResultsPane(props: {
                 </span>
               </div>
 
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={navTotal === 0}
-                className="gap-2"
-                onClick={() => navPrev()}
-                title="Prev (p). Shift+p = Warn+"
-              >
+              <Button size="sm" variant="outline" disabled={navTotal === 0} className="gap-2" onClick={() => navPrev()} title="Prev (p). Shift+p = Warn+">
                 <ChevronLeft className="w-4 h-4" />
                 Prev
               </Button>
 
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={navTotal === 0}
-                className="gap-2"
-                onClick={() => navNext()}
-                title="Next (n). Shift+n = Warn+"
-              >
+              <Button size="sm" variant="outline" disabled={navTotal === 0} className="gap-2" onClick={() => navNext()} title="Next (n). Shift+n = Warn+">
                 Next
                 <ChevronRight className="w-4 h-4" />
               </Button>
@@ -338,11 +311,7 @@ export function ResultsPane(props: {
                   Use full lines (original)
                 </DropdownMenuCheckboxItem>
 
-                <DropdownMenuCheckboxItem
-                  checked={exportIncludeTs}
-                  onCheckedChange={(v) => setExportIncludeTs(Boolean(v))}
-                  disabled={!hasTimestamps}
-                >
+                <DropdownMenuCheckboxItem checked={exportIncludeTs} onCheckedChange={(v) => setExportIncludeTs(Boolean(v))} disabled={!hasTimestamps}>
                   Include timestamps
                 </DropdownMenuCheckboxItem>
 
@@ -370,23 +339,11 @@ export function ResultsPane(props: {
             </DropdownMenu>
 
             {/* Existing toggles */}
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={!hasTimestamps}
-              onClick={() => setShowTimestamps((v) => !v)}
-              title={!hasTimestamps ? "No timestamps detected in this log" : "Toggle timestamps column"}
-            >
+            <Button variant="outline" size="sm" disabled={!hasTimestamps} onClick={() => setShowTimestamps((v) => !v)} title={!hasTimestamps ? "No timestamps detected in this log" : "Toggle timestamps column"}>
               {showTimestamps ? "Hide timestamps" : "Show timestamps"}
             </Button>
 
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2"
-              onClick={() => setViewMode((m) => (m === "dark" ? "light" : "dark"))}
-              title="Toggle viewer theme"
-            >
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => setViewMode((m) => (m === "dark" ? "light" : "dark"))} title="Toggle viewer theme">
               {viewMode === "dark" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
               {viewMode === "dark" ? "Dark" : "Light"}
             </Button>
@@ -431,7 +388,7 @@ export function ResultsPane(props: {
                     }}
                     className={`group flex items-start gap-3 px-3 ${hoverBg} ${isTarget ? highlightClass : ""}`}
                   >
-                    {/* line number (based on original entries index) */}
+                    {/* line number */}
                     <div className={`w-16 shrink-0 select-none text-right pt-[2px] ${lineNoClass}`}>
                       {entryIndex + 1}
                     </div>
@@ -447,77 +404,67 @@ export function ResultsPane(props: {
                     <div className="min-w-0 flex-1 whitespace-pre-wrap break-words leading-5">{line}</div>
 
                     {/* actions cluster */}
-                    <div
-                      className={`shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity rounded-md ${actionBg}`}
-                    >
-                      {/* Category actions */}
-                      {cat && (
-                        <>
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            className="h-7 w-7"
-                            onClick={() => onlyCategory(cat)}
-                            title={`Only category: ${cat}`}
-                          >
+                    <div className={`shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity rounded-md ${actionBg}`}>
+                      {/* Filter menu */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button size="icon" variant="outline" className="h-7 w-7" title="Filter…">
                             <Filter className="w-3 h-3" />
                           </Button>
+                        </DropdownMenuTrigger>
 
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            className="h-7 w-7"
-                            onClick={() => toggleIncludeCategory(cat)}
-                            title={`Toggle include category: ${cat}`}
-                          >
+                        <DropdownMenuContent align="end" className="w-56">
+                          <DropdownMenuLabel>Filter</DropdownMenuLabel>
+
+                          {cat && (
+                            <>
+                              <DropdownMenuItem onClick={() => onlyCategory(cat)}>
+                                Only category: {cat}
+                              </DropdownMenuItem>
+
+                              <DropdownMenuItem onClick={() => onExcludeCategory(cat)}>
+                                Exclude category: {cat}
+                              </DropdownMenuItem>
+
+                              <DropdownMenuSeparator />
+                            </>
+                          )}
+
+                          {verb && verb !== "Unknown" && (
+                            <DropdownMenuItem onClick={() => onlyVerbosity(verb)}>
+                              Only verbosity: {verb}
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      {/* Add/toggle menu */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button size="icon" variant="outline" className="h-7 w-7" title="Add…">
                             <Plus className="w-3 h-3" />
                           </Button>
+                        </DropdownMenuTrigger>
 
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            className="h-7 w-7"
-                            onClick={() => onExcludeCategory(cat)}
-                            title={`Exclude category: ${cat}`}
-                          >
-                            <Minus className="w-3 h-3" />
-                          </Button>
-                        </>
-                      )}
+                        <DropdownMenuContent align="end" className="w-56">
+                          <DropdownMenuLabel>Add / Toggle</DropdownMenuLabel>
 
-                      {/* Verbosity actions */}
-                      {verb && verb !== "Unknown" && (
-                        <>
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            className="h-7 w-7"
-                            onClick={() => onlyVerbosity(verb)}
-                            title={`Only verbosity: ${verb}`}
-                          >
-                            <Filter className="w-3 h-3" />
-                          </Button>
+                          {cat && (
+                            <DropdownMenuItem onClick={() => toggleIncludeCategory(cat)}>
+                              Toggle include category: {cat}
+                            </DropdownMenuItem>
+                          )}
 
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            className="h-7 w-7"
-                            onClick={() => toggleIncludeVerbosity(verb)}
-                            title={`Toggle verbosity: ${verb}`}
-                          >
-                            <Plus className="w-3 h-3" />
-                          </Button>
-                        </>
-                      )}
+                          {verb && verb !== "Unknown" && (
+                            <DropdownMenuItem onClick={() => toggleIncludeVerbosity(verb)}>
+                              Toggle include verbosity: {verb}
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
 
                       {/* Copy */}
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        className="h-7 w-7"
-                        onClick={() => void copyText(line)}
-                        title="Copy line"
-                      >
+                      <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => void copyText(line)} title="Copy line">
                         <Copy className="w-3 h-3" />
                       </Button>
                     </div>
