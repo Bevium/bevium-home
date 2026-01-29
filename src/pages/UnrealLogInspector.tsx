@@ -7,20 +7,24 @@ import { useUnrealLogParser } from "@/components/tools/unreal-log-inspector/useU
 import { LogLoader } from "@/components/tools/unreal-log-inspector/LogLoader";
 import { FiltersPanel } from "@/components/tools/unreal-log-inspector/FiltersPanel";
 import { ResultsPane } from "@/components/tools/unreal-log-inspector/ResultsPane";
+import { FiltersToolbar } from "@/components/tools/unreal-log-inspector/FiltersToolbar";
 
 export default function UnrealLogInspector() {
   const log = useUnrealLogParser();
 
   const total = log.entries.length;
   const shown = log.filteredIndexes.length;
-
   const hasParsed = total > 0;
 
-  // Collapsible: if a log is parsed, default collapsed; otherwise open.
   const [inputOpen, setInputOpen] = useState(!hasParsed);
 
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+
   useEffect(() => {
-    if (hasParsed) setInputOpen(false);
+    if (hasParsed) {
+      setInputOpen(false);
+      setAdvancedOpen(false);
+    }
   }, [hasParsed]);
 
   return (
@@ -63,7 +67,7 @@ export default function UnrealLogInspector() {
 
         {/* If no parsed log => show ONLY the loader */}
         {!hasParsed ? (
-          <div className="max-w-3xl">
+          <div className="w-full">
             <LogLoader
               rawText={log.rawText}
               parsing={log.parsing}
@@ -75,9 +79,9 @@ export default function UnrealLogInspector() {
           </div>
         ) : (
           <>
-            {/* Collapsible input section */}
+            {/* Collapsible input section (FULL ROW when open) */}
             <div className="mb-6">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-3 flex-wrap">
                 <button
                   type="button"
                   className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -111,9 +115,34 @@ export default function UnrealLogInspector() {
               )}
             </div>
 
-            {/* Full row: Filters + Results */}
-            <div className="grid lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-12">
+            {/* Filters toolbar (FULL WIDTH) */}
+            <div className="mb-5">
+              <FiltersToolbar
+                query={log.query}
+                setQuery={log.setQuery}
+                verbosities={log.verbosities}
+                activeVerb={log.activeVerb}
+                toggleVerb={log.toggleVerb}
+                setVerbAll={log.setVerbAll}
+                quickErrorsWarnings={log.quickErrorsWarnings}
+                hasTimestamps={log.hasTimestamps}
+                fromDate={log.fromDate}
+                toDate={log.toDate}
+                setFromDate={log.setFromDate}
+                setToDate={log.setToDate}
+                excludedCats={log.excludedCats}
+                unexcludeCategory={log.unexcludeCategory}
+                clearExcludedCats={log.clearExcludedCats}
+                shown={shown}
+                total={total}
+                advancedOpen={advancedOpen}
+                setAdvancedOpen={setAdvancedOpen}
+              />
+            </div>
+
+            {/* Advanced filters (collapsible, FULL WIDTH) */}
+            {advancedOpen && (
+              <div className="mb-6">
                 <FiltersPanel
                   hasTimestamps={log.hasTimestamps}
                   categories={log.categories}
@@ -136,16 +165,15 @@ export default function UnrealLogInspector() {
                   clearExcludedCats={log.clearExcludedCats}
                 />
               </div>
+            )}
 
-              <div className="lg:col-span-12">
-                <ResultsPane
-                  entries={log.entries}
-                  filteredIndexes={log.filteredIndexes}
-                  onExcludeCategory={(c) => log.excludeCategory(c)}
-                  hasTimestamps={log.hasTimestamps}
-                />
-              </div>
-            </div>
+            {/* Results (FULL WIDTH) */}
+            <ResultsPane
+              entries={log.entries}
+              filteredIndexes={log.filteredIndexes}
+              onExcludeCategory={(c) => log.excludeCategory(c)}
+              hasTimestamps={log.hasTimestamps}
+            />
           </>
         )}
       </div>
