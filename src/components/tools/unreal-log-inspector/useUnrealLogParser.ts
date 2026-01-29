@@ -40,9 +40,12 @@ export function useUnrealLogParser() {
 
   const [excludedCats, setExcludedCats] = useState<Set<string>>(new Set());
 
-  const isWarnOrWorse = (v: LogVerbosity) => v === "Warning" || v === "Error" || v === "Fatal";
-  const isErrorOrFatal = (v: LogVerbosity) => v === "Error" || v === "Fatal";
+  // -------- Error navigation state --------
+  const [navScope, setNavScope] = useState<"error" | "warn">("error");
+  const [navCursor, setNavCursor] = useState<number>(-1); // index inside navTargets
+  const [navTargetPos, setNavTargetPos] = useState<number | null>(null); // position in filtered list
 
+  // -------- Worker wiring --------
   useEffect(() => {
     const w = new UnrealLogParserWorker();
     workerRef.current = w;
@@ -50,6 +53,7 @@ export function useUnrealLogParser() {
     w.onmessage = (ev: MessageEvent<ParseResult>) => {
       const res = ev.data;
 
+      // reset filters on new parse (safe default)
       setQuery("");
       setActiveCats(new Set());
       setExcludedCats(new Set());
@@ -59,8 +63,11 @@ export function useUnrealLogParser() {
       setVerbosities(res.verbosities);
       setHasTimestamps(res.hasTimestamps);
 
-      // default: everything except VeryVerbose
-      setActiveVerb(new Set());
+      // default: everything except VeryVerbose (but keep "no restriction" semantics)
+      // If you want "no filter", setActiveVerb(new Set()) instead.
+      const initialVerb = new Set<LogVerbosity>(res.verbosities);
+      initialVerb.delete("VeryVerbose");
+      setActiveVerb(initialVerb);
 
       // date defaults if timestamps exist
       if (res.hasTimestamps) {
@@ -69,11 +76,19 @@ export function useUnrealLogParser() {
           ts.sort((a, b) => a - b);
           setFromDate(toDateInputValue(ts[0]));
           setToDate(toDateInputValue(ts[ts.length - 1]));
+        } else {
+          setFromDate("");
+          setToDate("");
         }
       } else {
         setFromDate("");
         setToDate("");
       }
+
+      // reset nav on new parse
+      setNavScope("error");
+      setNavCursor(-1);
+      setNavTargetPos(null);
 
       setParsing(false);
     };
@@ -112,12 +127,18 @@ export function useUnrealLogParser() {
     setCategories([]);
     setVerbosities([]);
     setHasTimestamps(false);
+
     setQuery("");
     setActiveCats(new Set());
     setActiveVerb(new Set());
     setFromDate("");
     setToDate("");
     setExcludedCats(new Set());
+
+    // reset nav
+    setNavScope("error");
+    setNavCursor(-1);
+    setNavTargetPos(null);
   };
 
   const clearAllFilters = () => {
@@ -125,10 +146,10 @@ export function useUnrealLogParser() {
     setActiveCats(new Set());
     setExcludedCats(new Set());
 
-    // "All" verbosities (no restriction)
+    // show all verbosities (no restriction)
     setActiveVerb(new Set(verbosities));
 
-    // keep the default date range for the current log
+    // restore full date range for current log
     if (hasTimestamps && entries.length) {
       const ts = entries.map((e) => e.ts).filter((x): x is number => typeof x === "number");
       if (ts.length) {
@@ -143,11 +164,15 @@ export function useUnrealLogParser() {
       setFromDate("");
       setToDate("");
     }
+
+    // reset nav (so next/prev starts clean)
+    setNavScope("error");
+    setNavCursor(-1);
+    setNavTargetPos(null);
   };
 
-
+  // -------- Filtering (MUST be declared before nav memos) --------
   const filteredIndexes = useMemo(() => {
-
     const q = query.trim().toLowerCase();
     const hasCatFilter = activeCats.size > 0;
     const hasVerbFilter = activeVerb.size > 0;
@@ -165,17 +190,16 @@ export function useUnrealLogParser() {
 
       if (hasVerbFilter && !activeVerb.has(e.verbosity)) continue;
 
-      if (hasCatFilter) {
-        if (!activeCats.has(c)) continue;
-      }
+      if (hasCatFilter && !activeCats.has(c)) continue;
 
+      // If date filter is active, only filter lines that HAVE timestamps.
+      // Lines without timestamps are kept (so you never "lose the beginning").
       if (fromMs != null || toMs != null) {
         if (typeof e.ts === "number") {
           if (fromMs != null && e.ts < fromMs) continue;
           if (toMs != null && e.ts > toMs) continue;
         }
       }
-
 
       if (q) {
         const hay = `${e.category ?? ""} ${e.verbosity} ${e.message}`.toLowerCase();
@@ -187,7 +211,95 @@ export function useUnrealLogParser() {
     return out;
   }, [entries, query, activeCats, activeVerb, fromDate, toDate, hasTimestamps, excludedCats]);
 
-  // Actions
+  // -------- Nav helpers (safe: filteredIndexes exists now) --------
+
+  // Map entryIndex -> position in filteredIndexes (for go-to-line)
+  const filteredPosByEntryIndex = useMemo(() => {
+    const m = new Map<number, number>();
+    for (let pos = 0; pos < filteredIndexes.length; pos++) {
+      m.set(filteredIndexes[pos], pos);
+    }
+    return m;
+  }, [filteredIndexes]);
+
+  // Compute nav targets for a given scope (positions in filtered list)
+  const computeNavTargets = (scope: "error" | "warn") => {
+    const out: number[] = [];
+    for (let pos = 0; pos < filteredIndexes.length; pos++) {
+      const entryIndex = filteredIndexes[pos];
+      const v = entries[entryIndex]?.verbosity;
+
+      if (scope === "error") {
+        if (v === "Error" || v === "Fatal") out.push(pos);
+      } else {
+        if (v === "Warning" || v === "Error" || v === "Fatal") out.push(pos);
+      }
+    }
+    return out;
+  };
+
+  const navTargets = useMemo(() => computeNavTargets(navScope), [entries, filteredIndexes, navScope]);
+
+  const navTotal = navTargets.length;
+  const navCurrent = navCursor >= 0 ? navCursor + 1 : 0;
+  const navLabel = navScope === "error" ? "Error" : "Warn+";
+
+  // Keep cursor valid when filters change
+  useEffect(() => {
+    if (navTargets.length === 0) {
+      setNavCursor(-1);
+      setNavTargetPos(null);
+      return;
+    }
+
+    if (navCursor < 0) {
+      setNavCursor(0);
+      setNavTargetPos(navTargets[0]);
+      return;
+    }
+
+    const clamped = Math.max(0, Math.min(navCursor, navTargets.length - 1));
+    if (clamped !== navCursor) setNavCursor(clamped);
+    setNavTargetPos(navTargets[clamped]);
+  }, [navTargets]); // intentionally not including navCursor to avoid loops
+
+  const navNext = (scope?: "error" | "warn") => {
+    const s = scope ?? navScope;
+    const targets = computeNavTargets(s);
+    if (targets.length === 0) return;
+
+    setNavScope(s);
+    setNavCursor((prev) => {
+      const next = prev < 0 ? 0 : (prev + 1) % targets.length;
+      setNavTargetPos(targets[next]);
+      return next;
+    });
+  };
+
+  const navPrev = (scope?: "error" | "warn") => {
+    const s = scope ?? navScope;
+    const targets = computeNavTargets(s);
+    if (targets.length === 0) return;
+
+    setNavScope(s);
+    setNavCursor((prev) => {
+      const next = prev < 0 ? 0 : (prev - 1 + targets.length) % targets.length;
+      setNavTargetPos(targets[next]);
+      return next;
+    });
+  };
+
+  const navGoToLine = (line1Based: number) => {
+    const entryIndex = line1Based - 1;
+    const pos = filteredPosByEntryIndex.get(entryIndex);
+    if (pos == null) return false;
+
+    setNavTargetPos(pos);
+    // NOTE: we do not change navCursor here (this is just a scroll/highlight action)
+    return true;
+  };
+
+  // -------- Actions --------
   const toggleCat = (c: string) =>
     setActiveCats((prev) => {
       const next = new Set(prev);
@@ -249,6 +361,7 @@ export function useUnrealLogParser() {
     setText,
     parseText,
     clearAll,
+
     toggleCat,
     toggleVerb,
     setCatsAll,
@@ -258,6 +371,19 @@ export function useUnrealLogParser() {
     excludeCategory,
     unexcludeCategory,
     clearExcludedCats,
+
     clearAllFilters,
+
+    // nav
+    navScope,
+    setNavScope,
+    navCursor,
+    navTotal,
+    navCurrent,
+    navLabel,
+    navTargetPos,
+    navNext,
+    navPrev,
+    navGoToLine,
   };
 }

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { Copy, Sun, Moon, Minus, Download, Share2 } from "lucide-react";
+import {
+  Copy,
+  Sun,
+  Moon,
+  Minus,
+  Download,
+  Share2,
+  ChevronLeft,
+  ChevronRight,
+  AlertCircle,
+  AlertTriangle,
+  CornerDownLeft,
+} from "lucide-react";
 import type { LogEntry } from "./types";
 
 async function copyText(text: string) {
@@ -47,13 +59,43 @@ function csvEscape(v: string) {
   return s;
 }
 
+function isTypingTarget(t: EventTarget | null) {
+  const el = t as HTMLElement | null;
+  if (!el) return false;
+  const tag = (el.tagName || "").toLowerCase();
+  if (tag === "input" || tag === "textarea" || tag === "select") return true;
+  if ((el as any).isContentEditable) return true;
+  return false;
+}
+
 export function ResultsPane(props: {
   entries: LogEntry[];
   filteredIndexes: number[];
   hasTimestamps: boolean;
+
+  navTargetPos: number | null; // position in filtered list (0..filteredIndexes.length-1)
+  navCurrent: number; // 1-based
+  navTotal: number;
+  navLabel: string; // "Error" or "Warn+"
+  navNext: (scope?: "error" | "warn") => void;
+  navPrev: (scope?: "error" | "warn") => void;
+  navGoToLine: (line1Based: number) => boolean;
+
   onExcludeCategory: (category: string) => void;
 }) {
-  const { entries, filteredIndexes, onExcludeCategory, hasTimestamps } = props;
+  const {
+    entries,
+    filteredIndexes,
+    onExcludeCategory,
+    hasTimestamps,
+    navTargetPos,
+    navCurrent,
+    navTotal,
+    navLabel,
+    navNext,
+    navPrev,
+    navGoToLine,
+  } = props;
 
   const [showTimestamps, setShowTimestamps] = useState(false);
   const [viewMode, setViewMode] = useState<"dark" | "light">("dark");
@@ -80,6 +122,11 @@ export function ResultsPane(props: {
   const lineNoClass = viewMode === "dark" ? "text-zinc-500" : "text-zinc-400";
   const hoverBg = viewMode === "dark" ? "hover:bg-zinc-900/60" : "hover:bg-zinc-100/70";
   const actionBg = viewMode === "dark" ? "bg-zinc-950/60" : "bg-white/70";
+
+  const highlightClass =
+    viewMode === "dark"
+      ? "bg-amber-500/10 ring-1 ring-amber-500/40"
+      : "bg-amber-500/15 ring-1 ring-amber-500/40";
 
   // -------- Export builders (filtered only) --------
   const filteredEntries = useMemo(
@@ -142,16 +189,147 @@ export function ResultsPane(props: {
     downloadFile("unreal-log-filtered.csv", "text/csv;charset=utf-8", csv);
   }
 
+  // -------- Navigator: scroll + keyboard --------
+  useEffect(() => {
+    if (navTargetPos == null) return;
+    if (navTargetPos < 0 || navTargetPos >= filteredIndexes.length) return;
+
+    // center the target row
+    rowVirtualizer.scrollToIndex(navTargetPos, { align: "center" });
+  }, [navTargetPos, filteredIndexes.length, rowVirtualizer]);
+
+  const goToLinePrompt = useCallback(() => {
+    const s = window.prompt("Go to line (1-based):");
+    if (!s) return;
+    const n = Number(String(s).trim());
+    if (!Number.isFinite(n) || n <= 0) return;
+
+    const ok = navGoToLine(Math.floor(n));
+    if (!ok) {
+      // Optional: you can toast here instead
+      console.warn("[LogInspector] line not in filtered view:", n);
+    }
+  }, [navGoToLine]);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (isTypingTarget(e.target)) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      const key = e.key;
+
+      // n/p: error-only; Shift+n/p: warn+
+      if (key === "n" || key === "N") {
+        e.preventDefault();
+        navNext(e.shiftKey ? "warn" : "error");
+        return;
+      }
+      if (key === "p" || key === "P") {
+        e.preventDefault();
+        navPrev(e.shiftKey ? "warn" : "error");
+        return;
+      }
+
+      // g: go to line
+      if (key === "g" || key === "G") {
+        e.preventDefault();
+        goToLinePrompt();
+        return;
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [navNext, navPrev, goToLinePrompt]);
+
   return (
     <Card className="gaming-card">
       <CardHeader>
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <CardTitle>Results</CardTitle>
-            <CardDescription></CardDescription>
+            <CardDescription />
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
+            {/* --- Error navigator cluster --- */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="text-xs text-muted-foreground flex items-center gap-2">
+                {navLabel === "Warn+" ? (
+                  <AlertTriangle className="w-4 h-4" />
+                ) : (
+                  <AlertCircle className="w-4 h-4" />
+                )}
+                <span>
+                  {navTotal > 0 ? (
+                    <>
+                      {navLabel} <span className="text-foreground font-medium">{navCurrent}</span> /{" "}
+                      <span className="text-foreground font-medium">{navTotal}</span>
+                    </>
+                  ) : (
+                    <>
+                      {navLabel} <span className="text-foreground font-medium">0</span>
+                    </>
+                  )}
+                </span>
+              </div>
+
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={navTotal === 0}
+                className="gap-2"
+                onClick={() => navPrev()}
+                title="Prev (p). Shift+p = Warn+"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Prev
+              </Button>
+
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={navTotal === 0}
+                className="gap-2"
+                onClick={() => navNext()}
+                title="Next (n). Shift+n = Warn+"
+              >
+                Next
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-2"
+                onClick={goToLinePrompt}
+                title="Go to line (g)"
+              >
+                <CornerDownLeft className="w-4 h-4" />
+                Go
+              </Button>
+
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={navTotal === 0}
+                onClick={() => navNext("error")}
+                title="Switch to Error-only nav"
+              >
+                Error
+              </Button>
+
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={navTotal === 0}
+                onClick={() => navNext("warn")}
+                title="Switch to Warn+ nav"
+              >
+                Warn+
+              </Button>
+            </div>
+
             {/* Export dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -248,8 +426,9 @@ export function ResultsPane(props: {
               {rowVirtualizer.getVirtualItems().map((vi) => {
                 const entryIndex = filteredIndexes[vi.index];
                 const e = entries[entryIndex];
-                const line = e.raw;
-                const cat = e.category;
+                const line = e?.raw ?? "";
+                const cat = e?.category;
+                const isTarget = navTargetPos != null && vi.index === navTargetPos;
 
                 return (
                   <div
@@ -263,9 +442,9 @@ export function ResultsPane(props: {
                       width: "100%",
                       transform: `translateY(${vi.start}px)`,
                     }}
-                    className={`group flex items-start gap-3 px-3 ${hoverBg}`}
+                    className={`group flex items-start gap-3 px-3 ${hoverBg} ${isTarget ? highlightClass : ""}`}
                   >
-                    {/* line number */}
+                    {/* line number (based on original entries index) */}
                     <div className={`w-16 shrink-0 select-none text-right pt-[2px] ${lineNoClass}`}>
                       {entryIndex + 1}
                     </div>
@@ -273,14 +452,12 @@ export function ResultsPane(props: {
                     {/* timestamp column */}
                     {showTimestamps && (
                       <div className={`w-[220px] shrink-0 select-none pt-[2px] ${lineNoClass}`}>
-                        {formatTs(e.ts)}
+                        {formatTs(e?.ts)}
                       </div>
                     )}
 
                     {/* line text */}
-                    <div className="min-w-0 flex-1 whitespace-pre-wrap break-words leading-5">
-                      {line}
-                    </div>
+                    <div className="min-w-0 flex-1 whitespace-pre-wrap break-words leading-5">{line}</div>
 
                     {/* actions cluster */}
                     <div

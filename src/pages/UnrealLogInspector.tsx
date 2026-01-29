@@ -175,9 +175,18 @@ export default function UnrealLogInspector() {
               <ResultsPane
                 entries={log.entries}
                 filteredIndexes={log.filteredIndexes}
-                onExcludeCategory={(c) => log.excludeCategory(c)}
                 hasTimestamps={log.hasTimestamps}
+                onExcludeCategory={(c) => log.excludeCategory(c)}
+
+                navTargetPos={log.navTargetPos}
+                navCurrent={log.navCurrent}
+                navTotal={log.navTotal}
+                navLabel={log.navLabel}
+                navNext={log.navNext}
+                navPrev={log.navPrev}
+                navGoToLine={log.navGoToLine}
               />
+
             </>
           )}
         </div>
