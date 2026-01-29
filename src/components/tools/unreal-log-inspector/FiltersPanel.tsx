@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Calendar, Filter, Search as SearchIcon, Tag as TagIcon } from "lucide-react";
+import { Calendar, Filter, Search as SearchIcon, Tag as TagIcon, X } from "lucide-react";
 import type { LogVerbosity } from "./types";
 
 export function FiltersPanel(props: {
@@ -27,6 +27,10 @@ export function FiltersPanel(props: {
   setCatsAll: () => void;
   setVerbAll: () => void;
   quickErrorsWarnings: () => void;
+
+  excludedCats: Set<string>;
+  unexcludeCategory: (c: string) => void;
+  clearExcludedCats: () => void;
 }) {
   const {
     hasTimestamps,
@@ -45,7 +49,13 @@ export function FiltersPanel(props: {
     setCatsAll,
     setVerbAll,
     quickErrorsWarnings,
+
+    excludedCats,
+    unexcludeCategory,
+    clearExcludedCats,
   } = props;
+
+  const excludedList = Array.from(excludedCats).sort((a, b) => a.localeCompare(b));
 
   return (
     <Card className="gaming-card">
@@ -85,6 +95,36 @@ export function FiltersPanel(props: {
             <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
           </div>
         </div>
+
+        {/* Excluded categories */}
+        {excludedList.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <div className="text-sm text-muted-foreground flex items-center gap-2">
+                <TagIcon className="w-4 h-4" />
+                Excluded ({excludedList.length})
+              </div>
+              <Button size="sm" variant="outline" onClick={clearExcludedCats}>
+                Clear
+              </Button>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {excludedList.map((c) => (
+                <Badge
+                  key={c}
+                  variant="secondary"
+                  className="cursor-pointer border border-primary/20"
+                  onClick={() => unexcludeCategory(c)}
+                  title="Click to remove exclusion"
+                >
+                  {c}
+                  <X className="w-3 h-3 ml-1 opacity-70" />
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="space-y-2">
           <div className="flex items-center justify-between gap-2 flex-wrap">

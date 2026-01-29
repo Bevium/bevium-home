@@ -54,10 +54,10 @@ export default function UnrealLogInspector() {
           <LogLoader
             rawText={log.rawText}
             parsing={log.parsing}
-            onSetText={(t) => log.setText(t)}             
-            onParse={() => log.parseText(log.rawText)}  
+            onSetText={(t) => log.setText(t)}
+            onParse={() => log.parseText(log.rawText)}
             onClear={log.clearAll}
-            onUploadText={(t) => log.setText(t, { autoParse: true })} 
+            onUploadText={(t) => log.setText(t, { autoParse: true })}
           />
 
           <FiltersPanel
@@ -77,11 +77,18 @@ export default function UnrealLogInspector() {
             setCatsAll={log.setCatsAll}
             setVerbAll={log.setVerbAll}
             quickErrorsWarnings={log.quickErrorsWarnings}
+            excludedCats={log.excludedCats}
+            unexcludeCategory={log.unexcludeCategory}
+            clearExcludedCats={log.clearExcludedCats}
           />
         </div>
 
         {/* Results */}
-        <ResultsPane entries={log.entries} filteredIndexes={log.filteredIndexes} />
+        <ResultsPane
+          entries={log.entries}
+          filteredIndexes={log.filteredIndexes}
+          onExcludeCategory={(c) => log.excludeCategory(c)}
+        />
       </div>
     </section>
   );

@@ -38,6 +38,8 @@ export function useUnrealLogParser() {
   const [fromDate, setFromDate] = useState<string>("");
   const [toDate, setToDate] = useState<string>("");
 
+  const [excludedCats, setExcludedCats] = useState<Set<string>>(new Set());
+
   useEffect(() => {
     const w = new UnrealLogParserWorker();
     workerRef.current = w;
@@ -50,10 +52,12 @@ export function useUnrealLogParser() {
       setVerbosities(res.verbosities);
       setHasTimestamps(res.hasTimestamps);
 
+      // default: everything except VeryVerbose
       const initialVerb = new Set<LogVerbosity>(res.verbosities);
       initialVerb.delete("VeryVerbose");
       setActiveVerb(initialVerb);
 
+      // date defaults if timestamps exist
       if (res.hasTimestamps) {
         const ts = res.entries.map((e) => e.ts).filter((x): x is number => typeof x === "number");
         if (ts.length) {
@@ -85,11 +89,11 @@ export function useUnrealLogParser() {
     };
   }, []);
 
-
   const parseText = (text: string) => {
-    if (!workerRef.current) return;
+    const w = workerRef.current;
+    if (!w) return;
     setParsing(true);
-    workerRef.current.postMessage({ text });
+    w.postMessage({ text });
   };
 
   const setText = (text: string, opts?: { autoParse?: boolean }) => {
@@ -109,12 +113,15 @@ export function useUnrealLogParser() {
     setActiveVerb(new Set());
     setFromDate("");
     setToDate("");
+
+    setExcludedCats(new Set());
   };
 
   const filteredIndexes = useMemo(() => {
     const q = query.trim().toLowerCase();
     const hasCatFilter = activeCats.size > 0;
     const hasVerbFilter = activeVerb.size > 0;
+    const hasExcluded = excludedCats.size > 0;
 
     const fromMs = hasTimestamps && fromDate ? startOfDayMs(fromDate) : undefined;
     const toMs = hasTimestamps && toDate ? endOfDayMs(toDate) : undefined;
@@ -122,11 +129,13 @@ export function useUnrealLogParser() {
     const out: number[] = [];
     for (let i = 0; i < entries.length; i++) {
       const e = entries[i];
+      const c = e.category || "";
+
+      if (hasExcluded && excludedCats.has(c)) continue;
 
       if (hasVerbFilter && !activeVerb.has(e.verbosity)) continue;
 
       if (hasCatFilter) {
-        const c = e.category || "";
         if (!activeCats.has(c)) continue;
       }
 
@@ -144,7 +153,7 @@ export function useUnrealLogParser() {
       out.push(i);
     }
     return out;
-  }, [entries, query, activeCats, activeVerb, fromDate, toDate, hasTimestamps]);
+  }, [entries, query, activeCats, activeVerb, fromDate, toDate, hasTimestamps, excludedCats]);
 
   // Actions
   const toggleCat = (c: string) =>
@@ -165,6 +174,22 @@ export function useUnrealLogParser() {
   const setVerbAll = () => setActiveVerb(new Set(verbosities));
   const quickErrorsWarnings = () => setActiveVerb(new Set<LogVerbosity>(["Fatal", "Error", "Warning"]));
 
+  const excludeCategory = (c: string) =>
+    setExcludedCats((prev) => {
+      const next = new Set(prev);
+      next.add(c);
+      return next;
+    });
+
+  const unexcludeCategory = (c: string) =>
+    setExcludedCats((prev) => {
+      const next = new Set(prev);
+      next.delete(c);
+      return next;
+    });
+
+  const clearExcludedCats = () => setExcludedCats(new Set());
+
   return {
     // state
     rawText,
@@ -183,6 +208,8 @@ export function useUnrealLogParser() {
     setFromDate,
     setToDate,
 
+    excludedCats,
+
     // derived
     filteredIndexes,
 
@@ -195,5 +222,9 @@ export function useUnrealLogParser() {
     setCatsAll,
     setVerbAll,
     quickErrorsWarnings,
+
+    excludeCategory,
+    unexcludeCategory,
+    clearExcludedCats,
   };
 }
