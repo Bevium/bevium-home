@@ -3,7 +3,7 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
-const BlogNavbar = () => {
+const ToolsPageNavBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -41,8 +41,8 @@ const BlogNavbar = () => {
 
           {/* Desktop */}
           <div className="hidden md:flex items-center gap-8">
-            <Link to="/blog" className="text-foreground hover:text-primary transition-colors">
-              All Articles
+            <Link to="/tools" className="text-foreground hover:text-primary transition-colors">
+              All Tools
             </Link>
             <Button variant="hero" onClick={goHome}>
               Back to Home
@@ -68,11 +68,11 @@ const BlogNavbar = () => {
                 Home
               </button>
               <Link
-                to="/blog"
+                to="/tools"
                 onClick={closeMenu}
                 className="block w-full text-left px-3 py-2 text-foreground hover:text-primary hover:bg-muted rounded-md transition-colors"
               >
-                All Articles
+                All Tools
               </Link>
               <div className="px-3 py-2">
                 <Button variant="hero" className="w-full" onClick={goHome}>
@@ -87,4 +87,4 @@ const BlogNavbar = () => {
   );
 };
 
-export default BlogNavbar;
+export default ToolsPageNavBar;

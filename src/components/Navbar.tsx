@@ -79,6 +79,15 @@ const Navbar = () => {
             </button>
             <button
               onClick={() => {
+                navigate("/tools");
+                closeMenu();
+              }}
+              className="text-foreground hover:text-primary transition-colors"
+            >
+              Tools
+            </button>
+            <button
+              onClick={() => {
                 navigate("/blog");
                 closeMenu();
               }}
