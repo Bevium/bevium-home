@@ -40,6 +40,9 @@ export function useUnrealLogParser() {
 
   const [excludedCats, setExcludedCats] = useState<Set<string>>(new Set());
 
+  const isWarnOrWorse = (v: LogVerbosity) => v === "Warning" || v === "Error" || v === "Fatal";
+  const isErrorOrFatal = (v: LogVerbosity) => v === "Error" || v === "Fatal";
+
   useEffect(() => {
     const w = new UnrealLogParserWorker();
     workerRef.current = w;
@@ -109,15 +112,39 @@ export function useUnrealLogParser() {
     setCategories([]);
     setVerbosities([]);
     setHasTimestamps(false);
-
     setQuery("");
     setActiveCats(new Set());
     setActiveVerb(new Set());
     setFromDate("");
     setToDate("");
-
     setExcludedCats(new Set());
   };
+
+  const clearAllFilters = () => {
+    setQuery("");
+    setActiveCats(new Set());
+    setExcludedCats(new Set());
+
+    // "All" verbosities (no restriction)
+    setActiveVerb(new Set(verbosities));
+
+    // keep the default date range for the current log
+    if (hasTimestamps && entries.length) {
+      const ts = entries.map((e) => e.ts).filter((x): x is number => typeof x === "number");
+      if (ts.length) {
+        ts.sort((a, b) => a - b);
+        setFromDate(toDateInputValue(ts[0]));
+        setToDate(toDateInputValue(ts[ts.length - 1]));
+      } else {
+        setFromDate("");
+        setToDate("");
+      }
+    } else {
+      setFromDate("");
+      setToDate("");
+    }
+  };
+
 
   const filteredIndexes = useMemo(() => {
 
@@ -143,10 +170,12 @@ export function useUnrealLogParser() {
       }
 
       if (fromMs != null || toMs != null) {
-        if (typeof e.ts !== "number") continue;
-        if (fromMs != null && e.ts < fromMs) continue;
-        if (toMs != null && e.ts > toMs) continue;
+        if (typeof e.ts === "number") {
+          if (fromMs != null && e.ts < fromMs) continue;
+          if (toMs != null && e.ts > toMs) continue;
+        }
       }
+
 
       if (q) {
         const hay = `${e.category ?? ""} ${e.verbosity} ${e.message}`.toLowerCase();
@@ -229,5 +258,6 @@ export function useUnrealLogParser() {
     excludeCategory,
     unexcludeCategory,
     clearExcludedCats,
+    clearAllFilters,
   };
 }
