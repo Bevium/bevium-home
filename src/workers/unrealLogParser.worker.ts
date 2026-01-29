@@ -11,13 +11,10 @@ export type LogVerbosity =
 export type LogEntry = {
   id: number;
 
-  // ✅ stripped line: no [time][frame] prefix
-  raw: string;
+  raw: string;      // stripped
+  full?: string;    // original full line
 
-  // ✅ original full line (optional but recommended)
-  full?: string;
-
-  ts?: number; // unix ms
+  ts?: number;      // unix ms
   frame?: number;
   category?: string;
   verbosity: LogVerbosity;
@@ -79,14 +76,13 @@ function parseLines(rawText: string): ParseResult {
   const vers = new Set<LogVerbosity>();
   let hasTimestamps = false;
 
-  // Typical UE line:
-  // [2026.01.26-14.46.28:413][432]LogViewport: Display: Viewport ...
+  // Full UE: allow spaces in frame; make verbosity optional
   const reFull =
-    /^\[(?<time>[^\]]+)\]\[(?<frame>\d+)\](?<cat>[A-Za-z0-9_]+):\s*(?<verb>[A-Za-z]+):\s*(?<msg>.*)$/;
+    /^\[(?<time>[^\]]+)\]\[\s*(?<frame>\d+)\s*\](?<cat>[A-Za-z0-9_]+):\s*(?:(?<verb>VeryVerbose|Verbose|Display|Log|Warning|Error|Fatal):\s*)?(?<msg>.*)$/;
 
-  // Simpler:
-  // LogTemp: Warning: Hello
-  const reSimple = /^(?<cat>[A-Za-z0-9_]+):\s*(?<verb>[A-Za-z]+):\s*(?<msg>.*)$/;
+  // Simple: verbosity optional
+  const reSimple =
+    /^(?<cat>[A-Za-z0-9_]+):\s*(?:(?<verb>VeryVerbose|Verbose|Display|Log|Warning|Error|Fatal):\s*)?(?<msg>.*)$/;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -100,9 +96,12 @@ function parseLines(rawText: string): ParseResult {
       const ts = parseUETimeToMs(timeStr);
       if (ts != null) hasTimestamps = true;
 
-      const frame = Number(m.groups.frame);
+      const frameNum = Number(m.groups.frame);
       const category = m.groups.cat;
-      const verbosity = normalizeVerbosity(m.groups.verb);
+
+      const verbRaw = m.groups.verb;
+      const verbosity: LogVerbosity = verbRaw ? normalizeVerbosity(verbRaw) : "Log";
+
       const msg = m.groups.msg ?? "";
 
       const raw = `${category}: ${verbosity}: ${msg}`;
@@ -112,7 +111,7 @@ function parseLines(rawText: string): ParseResult {
         raw,
         full,
         ts,
-        frame: Number.isFinite(frame) ? frame : undefined,
+        frame: Number.isFinite(frameNum) ? frameNum : undefined,
         category,
         verbosity,
         message: msg,
@@ -129,7 +128,11 @@ function parseLines(rawText: string): ParseResult {
       const full = line;
 
       const category = m.groups.cat;
-      const verbosity = normalizeVerbosity(m.groups.verb);
+
+      // ✅ default to Log if verb missing
+      const verbRaw = m.groups.verb;
+      const verbosity: LogVerbosity = verbRaw ? normalizeVerbosity(verbRaw) : "Log";
+
       const msg = m.groups.msg ?? "";
 
       const raw = `${category}: ${verbosity}: ${msg}`;
@@ -149,7 +152,6 @@ function parseLines(rawText: string): ParseResult {
       continue;
     }
 
-    // Fallback: unknown line becomes its own entry
     const e: LogEntry = {
       id: entries.length,
       raw: line,
