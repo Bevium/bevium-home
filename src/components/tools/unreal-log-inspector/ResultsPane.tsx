@@ -13,20 +13,21 @@ async function copyText(text: string) {
   }
 }
 
-function extractCategoryFromRaw(raw: string): string | undefined {
-  // [..][..]LogViewport: Display: ...
-  // LogViewport: Display: ...
-  const m = raw.match(/(?:\]\[\d+\])?(?<cat>[A-Za-z0-9_]+):\s*[A-Za-z]+:\s*/);
-  return m?.groups?.cat;
+function formatTs(ts?: number) {
+  if (typeof ts !== "number") return "";
+  // keep it compact-ish; you can change to toLocaleString() if you prefer
+  return new Date(ts).toLocaleString();
 }
 
 export function ResultsPane(props: {
   entries: LogEntry[];
   filteredIndexes: number[];
+  hasTimestamps: boolean;
   onExcludeCategory: (category: string) => void;
 }) {
-  const { entries, filteredIndexes, onExcludeCategory } = props;
+  const { entries, filteredIndexes, onExcludeCategory, hasTimestamps } = props;
 
+  const [showTimestamps, setShowTimestamps] = useState(true);
   const [viewMode, setViewMode] = useState<"dark" | "light">("dark");
 
   const parentRef = useRef<HTMLDivElement | null>(null);
@@ -47,25 +48,52 @@ export function ResultsPane(props: {
   const hoverBg = viewMode === "dark" ? "hover:bg-zinc-900/60" : "hover:bg-zinc-100/70";
   const actionBg = viewMode === "dark" ? "bg-zinc-950/60" : "bg-white/70";
 
+  // When timestamps are shown, use normalized text to avoid duplicating timestamps from e.raw
+  const buildDisplayLine = (e: LogEntry) => {
+    if (!showTimestamps) return e.raw;
+
+    const cat = e.category;
+    const v = e.verbosity && e.verbosity !== "Unknown" ? e.verbosity : "";
+    const prefix =
+      (cat ? `${cat}: ` : "") +
+      (v ? `${v}: ` : "");
+
+    // message already excludes the timestamp/header in your parser
+    return `${prefix}${e.message}`;
+  };
+
   return (
     <Card className="gaming-card">
       <CardHeader>
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <CardTitle>Results</CardTitle>
-            <CardDescription>Monospace viewer. Actions appear on hover.</CardDescription>
+            <CardDescription>
+            </CardDescription>
           </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2"
-            onClick={() => setViewMode((m) => (m === "dark" ? "light" : "dark"))}
-            title="Toggle viewer theme"
-          >
-            {viewMode === "dark" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-            {viewMode === "dark" ? "Dark" : "Light"}
-          </Button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!hasTimestamps}
+              onClick={() => setShowTimestamps((v) => !v)}
+              title={!hasTimestamps ? "No timestamps detected in this log" : "Toggle timestamps column"}
+            >
+              {showTimestamps ? "Hide timestamps" : "Show timestamps"}
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={() => setViewMode((m) => (m === "dark" ? "light" : "dark"))}
+              title="Toggle viewer theme"
+            >
+              {viewMode === "dark" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+              {viewMode === "dark" ? "Dark" : "Light"}
+            </Button>
+          </div>
         </div>
       </CardHeader>
 
@@ -87,13 +115,13 @@ export function ResultsPane(props: {
               {rowVirtualizer.getVirtualItems().map((vi) => {
                 const entryIndex = filteredIndexes[vi.index];
                 const e = entries[entryIndex];
-                const line = e.raw;
 
-                const cat = e.category ?? extractCategoryFromRaw(line);
+                const displayLine = buildDisplayLine(e);
+                const cat = e.category;
 
                 return (
                   <div
-                    key={vi.key} 
+                    key={vi.key}
                     ref={rowVirtualizer.measureElement}
                     data-index={vi.index}
                     style={{
@@ -110,9 +138,16 @@ export function ResultsPane(props: {
                       {entryIndex + 1}
                     </div>
 
+                    {/* timestamp column */}
+                    {showTimestamps && (
+                      <div className={`w-[150px] shrink-0 select-none pt-[2px] ${lineNoClass}`}>
+                        {formatTs(e.ts)}
+                      </div>
+                    )}
+
                     {/* line text */}
                     <div className="min-w-0 flex-1 whitespace-pre-wrap break-words leading-5">
-                      {line}
+                      {displayLine}
                     </div>
 
                     {/* actions cluster (appears on hover) */}
@@ -127,7 +162,7 @@ export function ResultsPane(props: {
                           onClick={() => onExcludeCategory(cat)}
                           title={`Filter out category: ${cat}`}
                         >
-                          <Minus className="w-2 h-2" />
+                          <Minus className="w-3 h-3" />
                         </Button>
                       )}
 
@@ -135,10 +170,10 @@ export function ResultsPane(props: {
                         size="icon"
                         variant="outline"
                         className="h-7 w-7"
-                        onClick={() => void copyText(line)}
+                        onClick={() => void copyText(displayLine)}
                         title="Copy line"
                       >
-                        <Copy className="w-2 h-2" />
+                        <Copy className="w-3 h-3" />
                       </Button>
                     </div>
                   </div>

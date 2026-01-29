@@ -10,13 +10,15 @@ export type LogVerbosity =
 
 export type LogEntry = {
   id: number;
-  raw: string;
-  ts?: number; // unix ms
+  raw: string;        
+  full?: string;    
+  ts?: number;
   frame?: number;
   category?: string;
   verbosity: LogVerbosity;
   message: string;
 };
+
 
 export type ParseResult = {
   entries: LogEntry[];

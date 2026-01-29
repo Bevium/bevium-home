@@ -10,7 +10,13 @@ export type LogVerbosity =
 
 export type LogEntry = {
   id: number;
+
+  // ✅ stripped line: no [time][frame] prefix
   raw: string;
+
+  // ✅ original full line (optional but recommended)
+  full?: string;
+
   ts?: number; // unix ms
   frame?: number;
   category?: string;
@@ -26,10 +32,6 @@ type ParseResult = {
 };
 
 function parseUETimeToMs(s: string): number | undefined {
-  // Formats we try:
-  // 1) "2026.01.26-14.46.28:413"
-  // 2) "2026-01-26 14:46:28.413"
-  // Note: We parse as local time; for filtering it’s fine.
   const m1 = s.match(/^(\d{4})\.(\d{2})\.(\d{2})-(\d{2})\.(\d{2})\.(\d{2}):(\d{3})$/);
   if (m1) {
     const [, Y, Mo, D, h, mi, se, ms] = m1;
@@ -92,7 +94,7 @@ function parseLines(rawText: string): ParseResult {
     line.startsWith("\t") ||
     line.startsWith("    ") ||
     line.startsWith("0x") ||
-    line.startsWith("Log") === false && line.includes("!"); // weak heuristic
+    (line.startsWith("Log") === false && line.includes("!"));
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -100,6 +102,8 @@ function parseLines(rawText: string): ParseResult {
 
     let m = line.match(reFull);
     if (m?.groups) {
+      const full = line;
+
       const timeStr = m.groups.time;
       const ts = parseUETimeToMs(timeStr);
       if (ts != null) hasTimestamps = true;
@@ -109,36 +113,48 @@ function parseLines(rawText: string): ParseResult {
       const verbosity = normalizeVerbosity(m.groups.verb);
       const msg = m.groups.msg ?? "";
 
+      // ✅ stripped raw
+      const raw = `${category}: ${verbosity}: ${msg}`;
+
       const e: LogEntry = {
         id: entries.length,
-        raw: line,
+        raw,
+        full,
         ts,
         frame: Number.isFinite(frame) ? frame : undefined,
         category,
         verbosity,
         message: msg,
       };
+
       entries.push(e);
-      if (category) cats.add(category);
+      cats.add(category);
       vers.add(verbosity);
       continue;
     }
 
     m = line.match(reSimple);
     if (m?.groups) {
+      const full = line;
+
       const category = m.groups.cat;
       const verbosity = normalizeVerbosity(m.groups.verb);
       const msg = m.groups.msg ?? "";
 
+      // ✅ already stripped enough
+      const raw = `${category}: ${verbosity}: ${msg}`;
+
       const e: LogEntry = {
         id: entries.length,
-        raw: line,
+        raw,
+        full,
         category,
         verbosity,
         message: msg,
       };
+
       entries.push(e);
-      if (category) cats.add(category);
+      cats.add(category);
       vers.add(verbosity);
       continue;
     }
@@ -148,6 +164,9 @@ function parseLines(rawText: string): ParseResult {
     if (last && isContinuation(line)) {
       last.raw += "\n" + line;
       last.message += "\n" + line;
+
+      // ✅ keep full in sync too
+      last.full = (last.full ?? last.raw) + "\n" + line;
       continue;
     }
 
@@ -155,6 +174,7 @@ function parseLines(rawText: string): ParseResult {
     const e: LogEntry = {
       id: entries.length,
       raw: line,
+      full: line,
       verbosity: "Unknown",
       message: line,
     };
@@ -165,7 +185,6 @@ function parseLines(rawText: string): ParseResult {
   const categories = Array.from(cats).sort((a, b) => a.localeCompare(b));
   const verbosities = Array.from(vers);
 
-  // keep useful order
   const order: LogVerbosity[] = ["Fatal", "Error", "Warning", "Display", "Log", "Verbose", "VeryVerbose", "Unknown"];
   verbosities.sort((a, b) => order.indexOf(a) - order.indexOf(b));
 

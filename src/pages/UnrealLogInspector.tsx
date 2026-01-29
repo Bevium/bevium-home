@@ -1,17 +1,27 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { FileSearch, ArrowLeft } from "lucide-react";
+import { FileSearch, ArrowLeft, ChevronDown, ChevronRight } from "lucide-react";
+
 import { useUnrealLogParser } from "@/components/tools/unreal-log-inspector/useUnrealLogParser";
 import { LogLoader } from "@/components/tools/unreal-log-inspector/LogLoader";
 import { FiltersPanel } from "@/components/tools/unreal-log-inspector/FiltersPanel";
 import { ResultsPane } from "@/components/tools/unreal-log-inspector/ResultsPane";
-
 
 export default function UnrealLogInspector() {
   const log = useUnrealLogParser();
 
   const total = log.entries.length;
   const shown = log.filteredIndexes.length;
+
+  const hasParsed = total > 0;
+
+  // Collapsible: if a log is parsed, default collapsed; otherwise open.
+  const [inputOpen, setInputOpen] = useState(!hasParsed);
+
+  useEffect(() => {
+    if (hasParsed) setInputOpen(false);
+  }, [hasParsed]);
 
   return (
     <section className="section-padding">
@@ -33,11 +43,13 @@ export default function UnrealLogInspector() {
                 Upload or paste Unreal logs. Auto-extract categories & verbosity. Filter, search and slice by date.
               </p>
 
-              <p className="text-sm text-muted-foreground mt-2">
-                Parsed: <span className="text-foreground font-medium">{total}</span> • Showing:{" "}
-                <span className="text-foreground font-medium">{shown}</span>
-                {log.hasTimestamps ? " • Timestamps: yes" : " • Timestamps: none detected"}
-              </p>
+              {hasParsed && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Parsed: <span className="text-foreground font-medium">{total}</span> • Showing:{" "}
+                  <span className="text-foreground font-medium">{shown}</span>
+                  {log.hasTimestamps ? " • Timestamps: yes" : " • Timestamps: none detected"}
+                </p>
+              )}
             </div>
 
             <Button variant="outline" asChild className="gap-2">
@@ -49,46 +61,93 @@ export default function UnrealLogInspector() {
           </div>
         </div>
 
-        {/* Loader + Filters */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-8">
-          <LogLoader
-            rawText={log.rawText}
-            parsing={log.parsing}
-            onSetText={(t) => log.setText(t)}
-            onParse={() => log.parseText(log.rawText)}
-            onClear={log.clearAll}
-            onUploadText={(t) => log.setText(t, { autoParse: true })}
-          />
+        {/* If no parsed log => show ONLY the loader */}
+        {!hasParsed ? (
+          <div className="max-w-3xl">
+            <LogLoader
+              rawText={log.rawText}
+              parsing={log.parsing}
+              onSetText={(t) => log.setText(t)}
+              onParse={() => log.parseText(log.rawText)}
+              onClear={log.clearAll}
+              onUploadText={(t) => log.setText(t, { autoParse: true })}
+            />
+          </div>
+        ) : (
+          <>
+            {/* Collapsible input section */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => setInputOpen((v) => !v)}
+                >
+                  {inputOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                  Log Input (upload / paste)
+                </button>
 
-          <FiltersPanel
-            hasTimestamps={log.hasTimestamps}
-            categories={log.categories}
-            verbosities={log.verbosities}
-            query={log.query}
-            setQuery={log.setQuery}
-            fromDate={log.fromDate}
-            toDate={log.toDate}
-            setFromDate={log.setFromDate}
-            setToDate={log.setToDate}
-            activeCats={log.activeCats}
-            activeVerb={log.activeVerb}
-            toggleCat={log.toggleCat}
-            toggleVerb={log.toggleVerb}
-            setCatsAll={log.setCatsAll}
-            setVerbAll={log.setVerbAll}
-            quickErrorsWarnings={log.quickErrorsWarnings}
-            excludedCats={log.excludedCats}
-            unexcludeCategory={log.unexcludeCategory}
-            clearExcludedCats={log.clearExcludedCats}
-          />
-        </div>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={() => setInputOpen(true)}>
+                    Edit log
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={log.clearAll}>
+                    Clear log
+                  </Button>
+                </div>
+              </div>
 
-        {/* Results */}
-        <ResultsPane
-          entries={log.entries}
-          filteredIndexes={log.filteredIndexes}
-          onExcludeCategory={(c) => log.excludeCategory(c)}
-        />
+              {inputOpen && (
+                <div className="mt-4">
+                  <LogLoader
+                    rawText={log.rawText}
+                    parsing={log.parsing}
+                    onSetText={(t) => log.setText(t)}
+                    onParse={() => log.parseText(log.rawText)}
+                    onClear={log.clearAll}
+                    onUploadText={(t) => log.setText(t, { autoParse: true })}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Full row: Filters + Results */}
+            <div className="grid lg:grid-cols-12 gap-8">
+              <div className="lg:col-span-12">
+                <FiltersPanel
+                  hasTimestamps={log.hasTimestamps}
+                  categories={log.categories}
+                  verbosities={log.verbosities}
+                  query={log.query}
+                  setQuery={log.setQuery}
+                  fromDate={log.fromDate}
+                  toDate={log.toDate}
+                  setFromDate={log.setFromDate}
+                  setToDate={log.setToDate}
+                  activeCats={log.activeCats}
+                  activeVerb={log.activeVerb}
+                  toggleCat={log.toggleCat}
+                  toggleVerb={log.toggleVerb}
+                  setCatsAll={log.setCatsAll}
+                  setVerbAll={log.setVerbAll}
+                  quickErrorsWarnings={log.quickErrorsWarnings}
+                  excludedCats={log.excludedCats}
+                  unexcludeCategory={log.unexcludeCategory}
+                  clearExcludedCats={log.clearExcludedCats}
+                />
+              </div>
+
+              <div className="lg:col-span-12">
+                <ResultsPane
+                  entries={log.entries}
+                  filteredIndexes={log.filteredIndexes}
+                  onExcludeCategory={(c) => log.excludeCategory(c)}
+                  hasTimestamps={log.hasTimestamps}
+                />
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </section>
   );
