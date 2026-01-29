@@ -8,6 +8,8 @@ import NotFound from "./pages/NotFound";
 
 import BlogIndex from "./pages/BlogIndex";
 import BlogPost from "./pages/BlogPost";
+import ToolsIndex from "./pages/ToolsIndex";
+import UnrealLogInspector from "./pages/UnrealLogInspector";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +21,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/tools" element={<ToolsIndex />} />
+          <Route path="/tools/unreal-log-inspector" element={<UnrealLogInspector />} />
           <Route path="/blog" element={<BlogIndex />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="*" element={<NotFound />} />
