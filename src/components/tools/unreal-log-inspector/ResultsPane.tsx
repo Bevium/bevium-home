@@ -1,8 +1,18 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Copy, Sun, Moon, Minus } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuCheckboxItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import { Copy, Sun, Moon, Minus, Download, Share2 } from "lucide-react";
 import type { LogEntry } from "./types";
 
 async function copyText(text: string) {
@@ -15,8 +25,26 @@ async function copyText(text: string) {
 
 function formatTs(ts?: number) {
   if (typeof ts !== "number") return "";
-  // keep it compact-ish; you can change to toLocaleString() if you prefer
-  return new Date(ts).toLocaleString();
+  return new Date(ts).toISOString(); // stable for exporting
+}
+
+function downloadFile(filename: string, mime: string, content: string) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function csvEscape(v: string) {
+  // Quote if needed; also normalize CRLF
+  const s = (v ?? "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+  return s;
 }
 
 export function ResultsPane(props: {
@@ -27,8 +55,13 @@ export function ResultsPane(props: {
 }) {
   const { entries, filteredIndexes, onExcludeCategory, hasTimestamps } = props;
 
-  const [showTimestamps, setShowTimestamps] = useState(true);
+  const [showTimestamps, setShowTimestamps] = useState(false);
   const [viewMode, setViewMode] = useState<"dark" | "light">("dark");
+
+  // Export options
+  const [exportUseFull, setExportUseFull] = useState(true); // default: original UE line
+  const [exportIncludeTs, setExportIncludeTs] = useState(true);
+  const [exportIncludeFrame, setExportIncludeFrame] = useState(false);
 
   const parentRef = useRef<HTMLDivElement | null>(null);
 
@@ -48,19 +81,66 @@ export function ResultsPane(props: {
   const hoverBg = viewMode === "dark" ? "hover:bg-zinc-900/60" : "hover:bg-zinc-100/70";
   const actionBg = viewMode === "dark" ? "bg-zinc-950/60" : "bg-white/70";
 
-  // When timestamps are shown, use normalized text to avoid duplicating timestamps from e.raw
-  const buildDisplayLine = (e: LogEntry) => {
-    if (!showTimestamps) return e.raw;
+  // -------- Export builders (filtered only) --------
+  const filteredEntries = useMemo(
+    () => filteredIndexes.map((idx) => entries[idx]).filter(Boolean),
+    [filteredIndexes, entries]
+  );
 
-    const cat = e.category;
-    const v = e.verbosity && e.verbosity !== "Unknown" ? e.verbosity : "";
-    const prefix =
-      (cat ? `${cat}: ` : "") +
-      (v ? `${v}: ` : "");
+  function getExportLine(e: LogEntry) {
+    const base = exportUseFull ? (e.full ?? e.raw) : e.raw;
 
-    // message already excludes the timestamp/header in your parser
-    return `${prefix}${e.message}`;
-  };
+    if (exportUseFull) return base; // full already contains timestamp/frame if present
+
+    // stripped export: optionally prefix metadata
+    const parts: string[] = [];
+    if (exportIncludeTs && typeof e.ts === "number") parts.push(`[${formatTs(e.ts)}]`);
+    if (exportIncludeFrame && typeof e.frame === "number") parts.push(`[${e.frame}]`);
+    return (parts.length ? parts.join("") + " " : "") + base;
+  }
+
+  function buildTxt() {
+    return filteredEntries.map(getExportLine).join("\n");
+  }
+
+  function buildCsv() {
+    const cols = [
+      exportIncludeTs ? "timestamp" : null,
+      exportIncludeFrame ? "frame" : null,
+      "category",
+      "verbosity",
+      exportUseFull ? "line" : "message",
+    ].filter(Boolean) as string[];
+
+    const header = cols.join(",");
+
+    const rows = filteredEntries.map((e) => {
+      const cells: string[] = [];
+      if (exportIncludeTs) cells.push(csvEscape(formatTs(e.ts)));
+      if (exportIncludeFrame) cells.push(csvEscape(typeof e.frame === "number" ? String(e.frame) : ""));
+      cells.push(csvEscape(e.category ?? ""));
+      cells.push(csvEscape(e.verbosity ?? ""));
+      cells.push(csvEscape(exportUseFull ? (e.full ?? e.raw) : e.message ?? e.raw));
+      return cells.join(",");
+    });
+
+    return header + "\n" + rows.join("\n");
+  }
+
+  async function onCopyFiltered() {
+    const txt = buildTxt();
+    await copyText(txt);
+  }
+
+  function onDownloadTxt() {
+    const txt = buildTxt();
+    downloadFile("unreal-log-filtered.txt", "text/plain;charset=utf-8", txt);
+  }
+
+  function onDownloadCsv() {
+    const csv = buildCsv();
+    downloadFile("unreal-log-filtered.csv", "text/csv;charset=utf-8", csv);
+  }
 
   return (
     <Card className="gaming-card">
@@ -68,11 +148,64 @@ export function ResultsPane(props: {
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <CardTitle>Results</CardTitle>
-            <CardDescription>
-            </CardDescription>
+            <CardDescription></CardDescription>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
+            {/* Export dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Download className="w-4 h-4" />
+                  Export
+                </Button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent align="end" className="w-64">
+                <DropdownMenuLabel>Export options</DropdownMenuLabel>
+
+                <DropdownMenuCheckboxItem
+                  checked={exportUseFull}
+                  onCheckedChange={(v) => setExportUseFull(Boolean(v))}
+                >
+                  Use full lines (original)
+                </DropdownMenuCheckboxItem>
+
+                <DropdownMenuCheckboxItem
+                  checked={exportIncludeTs}
+                  onCheckedChange={(v) => setExportIncludeTs(Boolean(v))}
+                  disabled={!hasTimestamps}
+                >
+                  Include timestamps
+                </DropdownMenuCheckboxItem>
+
+                <DropdownMenuCheckboxItem
+                  checked={exportIncludeFrame}
+                  onCheckedChange={(v) => setExportIncludeFrame(Boolean(v))}
+                >
+                  Include frame
+                </DropdownMenuCheckboxItem>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem onClick={onCopyFiltered}>
+                  <Copy className="w-4 h-4 mr-2" />
+                  Copy filtered (TXT)
+                </DropdownMenuItem>
+
+                <DropdownMenuItem onClick={onDownloadTxt}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Download .txt
+                </DropdownMenuItem>
+
+                <DropdownMenuItem onClick={onDownloadCsv}>
+                  <Share2 className="w-4 h-4 mr-2" />
+                  Download .csv
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Existing toggles */}
             <Button
               variant="outline"
               size="sm"
@@ -115,8 +248,7 @@ export function ResultsPane(props: {
               {rowVirtualizer.getVirtualItems().map((vi) => {
                 const entryIndex = filteredIndexes[vi.index];
                 const e = entries[entryIndex];
-
-                const displayLine = buildDisplayLine(e);
+                const line = e.raw;
                 const cat = e.category;
 
                 return (
@@ -140,17 +272,17 @@ export function ResultsPane(props: {
 
                     {/* timestamp column */}
                     {showTimestamps && (
-                      <div className={`w-[150px] shrink-0 select-none pt-[2px] ${lineNoClass}`}>
+                      <div className={`w-[220px] shrink-0 select-none pt-[2px] ${lineNoClass}`}>
                         {formatTs(e.ts)}
                       </div>
                     )}
 
                     {/* line text */}
                     <div className="min-w-0 flex-1 whitespace-pre-wrap break-words leading-5">
-                      {displayLine}
+                      {line}
                     </div>
 
-                    {/* actions cluster (appears on hover) */}
+                    {/* actions cluster */}
                     <div
                       className={`shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity rounded-md ${actionBg}`}
                     >
@@ -170,7 +302,7 @@ export function ResultsPane(props: {
                         size="icon"
                         variant="outline"
                         className="h-7 w-7"
-                        onClick={() => void copyText(displayLine)}
+                        onClick={() => void copyText(line)}
                         title="Copy line"
                       >
                         <Copy className="w-3 h-3" />
