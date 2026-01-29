@@ -24,6 +24,8 @@ import {
   AlertCircle,
   AlertTriangle,
   CornerDownLeft,
+  Filter,
+  Plus,
 } from "lucide-react";
 import type { LogEntry } from "./types";
 
@@ -82,12 +84,18 @@ export function ResultsPane(props: {
   navGoToLine: (line1Based: number) => boolean;
 
   onExcludeCategory: (category: string) => void;
+
+  // quick filters
+  onlyCategory: (c: string) => void;
+  toggleIncludeCategory: (c: string) => void;
+  onlyVerbosity: (v: LogEntry["verbosity"]) => void;
+  toggleIncludeVerbosity: (v: LogEntry["verbosity"]) => void;
 }) {
   const {
     entries,
     filteredIndexes,
-    onExcludeCategory,
     hasTimestamps,
+
     navTargetPos,
     navCurrent,
     navTotal,
@@ -95,6 +103,13 @@ export function ResultsPane(props: {
     navNext,
     navPrev,
     navGoToLine,
+
+    onExcludeCategory,
+
+    onlyCategory,
+    toggleIncludeCategory,
+    onlyVerbosity,
+    toggleIncludeVerbosity,
   } = props;
 
   const [showTimestamps, setShowTimestamps] = useState(false);
@@ -206,7 +221,6 @@ export function ResultsPane(props: {
 
     const ok = navGoToLine(Math.floor(n));
     if (!ok) {
-      // Optional: you can toast here instead
       console.warn("[LogInspector] line not in filtered view:", n);
     }
   }, [navGoToLine]);
@@ -255,11 +269,7 @@ export function ResultsPane(props: {
             {/* --- Error navigator cluster --- */}
             <div className="flex items-center gap-2 flex-wrap">
               <div className="text-xs text-muted-foreground flex items-center gap-2">
-                {navLabel === "Warn+" ? (
-                  <AlertTriangle className="w-4 h-4" />
-                ) : (
-                  <AlertCircle className="w-4 h-4" />
-                )}
+                {navLabel === "Warn+" ? <AlertTriangle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
                 <span>
                   {navTotal > 0 ? (
                     <>
@@ -298,34 +308,16 @@ export function ResultsPane(props: {
                 <ChevronRight className="w-4 h-4" />
               </Button>
 
-              <Button
-                size="sm"
-                variant="outline"
-                className="gap-2"
-                onClick={goToLinePrompt}
-                title="Go to line (g)"
-              >
+              <Button size="sm" variant="outline" className="gap-2" onClick={goToLinePrompt} title="Go to line (g)">
                 <CornerDownLeft className="w-4 h-4" />
                 Go
               </Button>
 
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={navTotal === 0}
-                onClick={() => navNext("error")}
-                title="Switch to Error-only nav"
-              >
+              <Button size="sm" variant="outline" disabled={navTotal === 0} onClick={() => navNext("error")} title="Switch to Error-only nav">
                 Error
               </Button>
 
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={navTotal === 0}
-                onClick={() => navNext("warn")}
-                title="Switch to Warn+ nav"
-              >
+              <Button size="sm" variant="outline" disabled={navTotal === 0} onClick={() => navNext("warn")} title="Switch to Warn+ nav">
                 Warn+
               </Button>
             </div>
@@ -342,10 +334,7 @@ export function ResultsPane(props: {
               <DropdownMenuContent align="end" className="w-64">
                 <DropdownMenuLabel>Export options</DropdownMenuLabel>
 
-                <DropdownMenuCheckboxItem
-                  checked={exportUseFull}
-                  onCheckedChange={(v) => setExportUseFull(Boolean(v))}
-                >
+                <DropdownMenuCheckboxItem checked={exportUseFull} onCheckedChange={(v) => setExportUseFull(Boolean(v))}>
                   Use full lines (original)
                 </DropdownMenuCheckboxItem>
 
@@ -357,10 +346,7 @@ export function ResultsPane(props: {
                   Include timestamps
                 </DropdownMenuCheckboxItem>
 
-                <DropdownMenuCheckboxItem
-                  checked={exportIncludeFrame}
-                  onCheckedChange={(v) => setExportIncludeFrame(Boolean(v))}
-                >
+                <DropdownMenuCheckboxItem checked={exportIncludeFrame} onCheckedChange={(v) => setExportIncludeFrame(Boolean(v))}>
                   Include frame
                 </DropdownMenuCheckboxItem>
 
@@ -427,7 +413,8 @@ export function ResultsPane(props: {
                 const entryIndex = filteredIndexes[vi.index];
                 const e = entries[entryIndex];
                 const line = e?.raw ?? "";
-                const cat = e?.category;
+                const cat = e?.category ?? "";
+                const verb = e?.verbosity;
                 const isTarget = navTargetPos != null && vi.index === navTargetPos;
 
                 return (
@@ -463,18 +450,67 @@ export function ResultsPane(props: {
                     <div
                       className={`shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity rounded-md ${actionBg}`}
                     >
+                      {/* Category actions */}
                       {cat && (
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          className="h-7 w-7"
-                          onClick={() => onExcludeCategory(cat)}
-                          title={`Filter out category: ${cat}`}
-                        >
-                          <Minus className="w-3 h-3" />
-                        </Button>
+                        <>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="h-7 w-7"
+                            onClick={() => onlyCategory(cat)}
+                            title={`Only category: ${cat}`}
+                          >
+                            <Filter className="w-3 h-3" />
+                          </Button>
+
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="h-7 w-7"
+                            onClick={() => toggleIncludeCategory(cat)}
+                            title={`Toggle include category: ${cat}`}
+                          >
+                            <Plus className="w-3 h-3" />
+                          </Button>
+
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="h-7 w-7"
+                            onClick={() => onExcludeCategory(cat)}
+                            title={`Exclude category: ${cat}`}
+                          >
+                            <Minus className="w-3 h-3" />
+                          </Button>
+                        </>
                       )}
 
+                      {/* Verbosity actions */}
+                      {verb && verb !== "Unknown" && (
+                        <>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="h-7 w-7"
+                            onClick={() => onlyVerbosity(verb)}
+                            title={`Only verbosity: ${verb}`}
+                          >
+                            <Filter className="w-3 h-3" />
+                          </Button>
+
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="h-7 w-7"
+                            onClick={() => toggleIncludeVerbosity(verb)}
+                            title={`Toggle verbosity: ${verb}`}
+                          >
+                            <Plus className="w-3 h-3" />
+                          </Button>
+                        </>
+                      )}
+
+                      {/* Copy */}
                       <Button
                         size="icon"
                         variant="outline"

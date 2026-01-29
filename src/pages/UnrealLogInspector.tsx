@@ -177,7 +177,6 @@ export default function UnrealLogInspector() {
                 filteredIndexes={log.filteredIndexes}
                 hasTimestamps={log.hasTimestamps}
                 onExcludeCategory={(c) => log.excludeCategory(c)}
-
                 navTargetPos={log.navTargetPos}
                 navCurrent={log.navCurrent}
                 navTotal={log.navTotal}
@@ -185,7 +184,12 @@ export default function UnrealLogInspector() {
                 navNext={log.navNext}
                 navPrev={log.navPrev}
                 navGoToLine={log.navGoToLine}
+                onlyCategory={log.onlyCategory}
+                toggleIncludeCategory={log.toggleIncludeCategory}
+                onlyVerbosity={log.onlyVerbosity}
+                toggleIncludeVerbosity={log.toggleIncludeVerbosity}
               />
+
 
             </>
           )}

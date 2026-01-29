@@ -334,6 +334,44 @@ export function useUnrealLogParser() {
 
   const clearExcludedCats = () => setExcludedCats(new Set());
 
+  const onlyCategory = (c: string) => {
+    setActiveCats(new Set([c]));
+    // ensure it's not excluded anymore
+    setExcludedCats((prev) => {
+      if (!prev.has(c)) return prev;
+      const next = new Set(prev);
+      next.delete(c);
+      return next;
+    });
+  };
+
+  const toggleIncludeCategory = (c: string) => {
+    setActiveCats((prev) => {
+      const next = new Set(prev);
+      next.has(c) ? next.delete(c) : next.add(c);
+      return next;
+    });
+    // if user explicitly includes it, also unexclude it
+    setExcludedCats((prev) => {
+      if (!prev.has(c)) return prev;
+      const next = new Set(prev);
+      next.delete(c);
+      return next;
+    });
+  };
+
+  const onlyVerbosity = (v: LogVerbosity) => {
+    setActiveVerb(new Set([v]));
+  };
+
+  const toggleIncludeVerbosity = (v: LogVerbosity) => {
+    setActiveVerb((prev) => {
+      const next = new Set(prev);
+      next.has(v) ? next.delete(v) : next.add(v);
+      return next;
+    });
+  };
+
   return {
     // state
     rawText,
@@ -385,5 +423,10 @@ export function useUnrealLogParser() {
     navNext,
     navPrev,
     navGoToLine,
+
+    onlyCategory,
+    toggleIncludeCategory,
+    onlyVerbosity,
+    toggleIncludeVerbosity,
   };
 }
