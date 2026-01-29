@@ -105,7 +105,6 @@ function parseLines(rawText: string): ParseResult {
       const verbosity = normalizeVerbosity(m.groups.verb);
       const msg = m.groups.msg ?? "";
 
-      // ✅ stripped raw
       const raw = `${category}: ${verbosity}: ${msg}`;
 
       const e: LogEntry = {
@@ -133,7 +132,6 @@ function parseLines(rawText: string): ParseResult {
       const verbosity = normalizeVerbosity(m.groups.verb);
       const msg = m.groups.msg ?? "";
 
-      // ✅ already stripped enough
       const raw = `${category}: ${verbosity}: ${msg}`;
 
       const e: LogEntry = {

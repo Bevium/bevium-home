@@ -35,6 +35,8 @@ export function FiltersToolbar(props: {
   // advanced toggle
   advancedOpen: boolean;
   setAdvancedOpen: (v: boolean) => void;
+
+  clearAllFilters: () => void;
 }) {
   const {
     query,
@@ -56,6 +58,7 @@ export function FiltersToolbar(props: {
     total,
     advancedOpen,
     setAdvancedOpen,
+    clearAllFilters
   } = props;
 
   const excludedList = Array.from(excludedCats).sort((a, b) => a.localeCompare(b));
@@ -70,6 +73,10 @@ export function FiltersToolbar(props: {
             <span className="text-foreground font-medium">{total}</span>
           </span>
         </div>
+
+        <Button variant="outline" size="sm" onClick={clearAllFilters}>
+          Clear all filters
+        </Button>
 
         <Button
           variant="outline"

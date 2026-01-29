@@ -140,6 +140,7 @@ export default function UnrealLogInspector() {
                   total={total}
                   advancedOpen={advancedOpen}
                   setAdvancedOpen={setAdvancedOpen}
+                  clearAllFilters={log.clearAll}
                 />
               </div>
 

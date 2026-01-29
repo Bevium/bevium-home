@@ -47,15 +47,17 @@ export function useUnrealLogParser() {
     w.onmessage = (ev: MessageEvent<ParseResult>) => {
       const res = ev.data;
 
+      setQuery("");
+      setActiveCats(new Set());
+      setExcludedCats(new Set());
+
       setEntries(res.entries);
       setCategories(res.categories);
       setVerbosities(res.verbosities);
       setHasTimestamps(res.hasTimestamps);
 
       // default: everything except VeryVerbose
-      const initialVerb = new Set<LogVerbosity>(res.verbosities);
-      initialVerb.delete("VeryVerbose");
-      setActiveVerb(initialVerb);
+      setActiveVerb(new Set());
 
       // date defaults if timestamps exist
       if (res.hasTimestamps) {
@@ -118,6 +120,7 @@ export function useUnrealLogParser() {
   };
 
   const filteredIndexes = useMemo(() => {
+
     const q = query.trim().toLowerCase();
     const hasCatFilter = activeCats.size > 0;
     const hasVerbFilter = activeVerb.size > 0;
