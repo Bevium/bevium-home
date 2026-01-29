@@ -88,14 +88,6 @@ function parseLines(rawText: string): ParseResult {
   // LogTemp: Warning: Hello
   const reSimple = /^(?<cat>[A-Za-z0-9_]+):\s*(?<verb>[A-Za-z]+):\s*(?<msg>.*)$/;
 
-  // Continuation lines: stack traces, call stacks, indented blocks, etc.
-  const isContinuation = (line: string) =>
-    line.startsWith(" ") ||
-    line.startsWith("\t") ||
-    line.startsWith("    ") ||
-    line.startsWith("0x") ||
-    (line.startsWith("Log") === false && line.includes("!"));
-
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (!line) continue;
@@ -156,17 +148,6 @@ function parseLines(rawText: string): ParseResult {
       entries.push(e);
       cats.add(category);
       vers.add(verbosity);
-      continue;
-    }
-
-    // Continuation: append to previous entry if it looks like a stack/extra line
-    const last = entries[entries.length - 1];
-    if (last && isContinuation(line)) {
-      last.raw += "\n" + line;
-      last.message += "\n" + line;
-
-      // ✅ keep full in sync too
-      last.full = (last.full ?? last.raw) + "\n" + line;
       continue;
     }
 
